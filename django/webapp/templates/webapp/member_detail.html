@@ -1,0 +1,6 @@
+<h2>{{ object.full_name }}</h2>
+<p>{{ object.yichus }}</p>
+<p>Member of <a href="{% url 'synagogue_detail' object.synagogue.id %}">{{ object.synagogue }}</a></p>
+{% if object.can_get_aliya %}<p>Aliya name: {{ object.aliya_name }}</p>{% endif %}
+<p>Refuah name: {{ object.refuah_name }}</p>
+<p>Date of birth: {{ object.date_of_birth|date }} {% if object.born_after_shkiah %} (after shkiah) {% endif %}</p>

@@ -1,0 +1,7 @@
+<h2>Synagogue {{ object }}</h2>
+<h3>{{ object.member_set.count }} Member{{ object.member_set.count|pluralize }}</h3>
+<ul>
+    {% for member in object.member_set.all %}
+    <li><a href="{% url 'member_detail' member.id %}">{{ member }}</a></li>
+    {% endfor %}
+</ul>

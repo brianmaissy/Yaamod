@@ -1,3 +1,15 @@
-from django.shortcuts import render
+from django.views.generic import DetailView, ListView
 
-# Create your views here.
+from webapp.models import Synagogue, Member
+
+
+class SynagogueList(ListView):
+    model = Synagogue
+
+
+class SynagogueDetail(DetailView):
+    model = Synagogue
+
+
+class MemberDetail(DetailView):
+    model = Member
