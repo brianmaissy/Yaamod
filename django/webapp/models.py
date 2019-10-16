@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from django.db import models
 
 
@@ -22,9 +24,10 @@ class Member(models.Model):
 
     @property
     def full_name(self):
-        return ' '.join(name for name in (self.first_name, self.last_name)
-                        if name)
+        name_segments: Tuple[str] = (self.first_name, self.last_name)
+        return ' '.join(name for name in name_segments if name)
 
+    @property
     def yichus(self):
         if self.is_cohen:
             return 'Cohen'
