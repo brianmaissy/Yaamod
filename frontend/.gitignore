@@ -1,19 +1,7 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-
-# Editors
-.idea/
-
-# Django
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-*/node_modules
+/node_modules
 /.pnp
 .pnp.js
 
