@@ -1,32 +1,14 @@
 from django.views.generic import DetailView, ListView, View
-from django.http import HttpResponse, HttpResponseForbidden
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User, Group
+from django.http import HttpResponse
+from django.contrib.auth import logout
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import SuspiciousOperation
+from django.contrib.auth.forms import PasswordResetForm
 
-from webapp.models import Synagogue, Member
+from webapp.models import Synagogue, Member, get_from_model
+from webapp.forms import AddSynagogueForm, LoginForm, AddUserToSynagogueForm
 
 import abc
-
-
-def get_from_dict(data, *names):
-    args = []
-    for name in names:
-        arg = data.get(name)
-        if arg is None:
-            raise SuspiciousOperation()
-        args.append(arg)
-    if len(args) == 1:
-        args = args[0]
-    return args
-
-
-def get_from_model(model, **kwargs):
-    try:
-        return model.objects.get(**kwargs)
-    except model.DoesNotExist:
-        raise SuspiciousOperation()
 
 
 class SynagoguePermChecker(UserPassesTestMixin):
@@ -47,37 +29,81 @@ class SynagoguePermChecker(UserPassesTestMixin):
         pass
 
 
+class MyFormView(View):
+    """
+    django's FormView is not what we need since it does a lot that we don't need (e.g implement a GET that render
+    template, but we only want a simple post). So this simple FormView is exactly what we need. it is separated to
+    a lot of functions to let the children hook it. The usual child should just add
+    form = <MyForm>
+    and let the form do all the job.
+    """
+    form = NotImplementedError
+
+    def post(self, request):
+        form = self.get_form()
+        self.save(form)
+        return HttpResponse()
+
+    def get_form(self):
+        # we validate the form in get_form since the form is useless before it is validated
+        form = self.form(self.request.POST)
+        if not self.validate(form):
+            raise SuspiciousOperation()
+        return form
+
+    def validate(self, form):
+        return form.is_valid()
+
+    def save(self, form, *args, **kwargs):
+        form.save(*args, **kwargs)
+
+
+class SafeGetMixin:
+    def safe_get(self, *names):
+        args = []
+        for name in names:
+            arg = self.kwargs.get(name)
+            if arg is None:
+                raise SuspiciousOperation()
+            args.append(arg)
+        if len(args) == 1:
+            args = args[0]
+        return args
+
+
+class SynagoguePermCheckFormView(SynagoguePermChecker, MyFormView):
+    def get_synagogue(self):
+        form = self.get_form()
+        return form.get_synagogue()
+
+
 class SynagogueList(ListView):
     model = Synagogue
 
 
-class SynagogueDetail(SynagoguePermChecker, DetailView):
+class SynagogueDetail(SynagoguePermChecker, DetailView, SafeGetMixin):
     model = Synagogue
 
     def get_synagogue(self):
-        pk = get_from_dict(self.kwargs, 'pk')
+        pk = self.safe_get('pk')
         return get_from_model(Synagogue, pk=pk)
 
 
-class MemberDetail(SynagoguePermChecker, DetailView):
+class MemberDetail(SynagoguePermChecker, DetailView, SafeGetMixin):
     model = Member
 
     def get_synagogue(self):
-        member_pk = get_from_dict(self.kwargs, 'pk')
+        member_pk = self.safe_get('pk')
         member = get_from_model(Member, pk=member_pk)
         return member.synagogue
 
 
-class LoginView(View):
-    def post(self, request):
-        username, password = get_from_dict(request.POST, 'username', 'password')
-        user = authenticate(request, username=username, password=password)
+class LoginView(MyFormView):
+    form = LoginForm
 
-        if user is not None:
-            login(request, user)
-            return HttpResponse()
-        else:
-            return HttpResponseForbidden()
+    def save(self, form, *args, **kwargs):
+        kwargs['request'] = self.request
+        super().save(form, *args, **kwargs)
 
 
 class LogoutView(View):
@@ -86,26 +112,17 @@ class LogoutView(View):
         return HttpResponse()
 
 
-class AddUserView(SynagoguePermChecker, View):
-    def post(self, request):
-        username, password, pk = get_from_dict(request.POST, 'username', 'password', 'pk')
-
-        user = User.objects.create_user(username, password=password)
-        synagogue = get_from_model(Synagogue, pk=pk)
-        user.groups.add(synagogue.admins)
-
-        return HttpResponse()
-
-    def get_synagogue(self):
-        pk = get_from_dict(self.request.POST, 'pk')
-        return get_from_model(Synagogue, pk=pk)
+class AddUserView(SynagoguePermCheckFormView):
+    form = AddUserToSynagogueForm
 
 
-class AddSynagogueView(View):
-    def post(self, request):
-        name, username, password = get_from_dict(request.POST, 'name', 'username', 'password')
-        admins = Group.objects.create(name=u'synagogue_{0}_admins'.format(name))
-        Synagogue.objects.create(name=name, admins=admins)
-        user = User.objects.create_user(username, password=password)
-        user.groups.add(admins)
-        return HttpResponse()
+class AddSynagogueView(MyFormView):
+    form = AddSynagogueForm
+
+
+class PasswordResetView(MyFormView):
+    form = PasswordResetForm
+
+    def save(self, form, *args, **kwargs):
+        kwargs['request'] = self.request
+        super().save(form, *args, **kwargs)

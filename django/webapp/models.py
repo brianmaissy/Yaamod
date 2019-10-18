@@ -2,6 +2,7 @@ from typing import Tuple
 
 from django.db import models
 from django.contrib.auth.models import Group
+from django.core.exceptions import SuspiciousOperation
 
 
 class Synagogue(models.Model):
@@ -40,3 +41,10 @@ class Member(models.Model):
 
     def __str__(self):
         return self.full_name
+
+
+def get_from_model(model, **kwargs):
+    try:
+        return model.objects.get(**kwargs)
+    except model.DoesNotExist:
+        raise SuspiciousOperation()
