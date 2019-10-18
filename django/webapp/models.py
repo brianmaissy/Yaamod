@@ -1,10 +1,12 @@
 from typing import Tuple
 
 from django.db import models
+from django.contrib.auth.models import Group
 
 
 class Synagogue(models.Model):
     name = models.TextField()
+    admins = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.name
