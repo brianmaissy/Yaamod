@@ -22,6 +22,13 @@ def get_from_dict(data, *names):
     return args
 
 
+def get_from_model(model, **kwargs):
+    try:
+        return model.objects.get(**kwargs)
+    except model.DoesNotExist:
+        raise SuspiciousOperation()
+
+
 class SynagoguePermChecker(UserPassesTestMixin):
     """
     an abstract class to check if the user has admin permissions for the requested synagogue.
@@ -49,7 +56,7 @@ class SynagogueDetail(SynagoguePermChecker, DetailView):
 
     def get_synagogue(self):
         pk = get_from_dict(self.kwargs, 'pk')
-        return Synagogue.objects.get(pk=pk)
+        return get_from_model(Synagogue, pk=pk)
 
 
 class MemberDetail(SynagoguePermChecker, DetailView):
@@ -57,7 +64,7 @@ class MemberDetail(SynagoguePermChecker, DetailView):
 
     def get_synagogue(self):
         member_pk = get_from_dict(self.kwargs, 'pk')
-        member = Member.objects.get(pk=member_pk)
+        member = get_from_model(Member, pk=member_pk)
         return member.synagogue
 
 
@@ -83,18 +90,15 @@ class AddUserView(SynagoguePermChecker, View):
     def post(self, request):
         username, password, pk = get_from_dict(request.POST, 'username', 'password', 'pk')
 
-        user = User.objects.create_user(username)
-        user.set_password(password)
+        user = User.objects.create_user(username, password=password)
+        synagogue = get_from_model(Synagogue, pk=pk)
+        user.groups.add(synagogue.admins)
 
-        synagogue = Synagogue.objects.get(pk=pk)
-        synagogue.admins.add(user)
-
-        user.save()
         return HttpResponse()
 
     def get_synagogue(self):
         pk = get_from_dict(self.request.POST, 'pk')
-        return Synagogue.objects.get(pk=pk)
+        return get_from_model(Synagogue, pk=pk)
 
 
 class AddSynagogueView(View):
@@ -104,5 +108,4 @@ class AddSynagogueView(View):
         Synagogue.objects.create(name=name, admins=admins)
         user = User.objects.create_user(username, password=password)
         user.groups.add(admins)
-        user.save()
         return HttpResponse()
