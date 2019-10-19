@@ -4,14 +4,15 @@ from django.contrib.auth import logout
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import SuspiciousOperation
 from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.models import Group
 
 from webapp.models import Synagogue, Member, get_from_model
-from webapp.forms import AddSynagogueForm, LoginForm, AddUserToSynagogueForm
+from webapp.forms import AddUserAndSynagogue, LoginForm, AddUserToSynagogueForm
 
 import abc
 
 
-class SynagoguePermChecker(UserPassesTestMixin):
+class SynagoguePermissionChecker(UserPassesTestMixin):
     """
     an abstract class to check if the user has admin permissions for the requested synagogue.
     every child class need to implement get_synagogue which get the synagogue we are trying to query about
@@ -22,14 +23,19 @@ class SynagoguePermChecker(UserPassesTestMixin):
 
     def test_func(self):
         synagogue = self.get_synagogue()
-        return synagogue.admins in self.request.user.groups.all()
+        try:
+            self.request.user.groups.get(pk=synagogue.admins.pk)
+        except Group.DoesNotExist:
+            return False
+        else:
+            return True
 
     @abc.abstractmethod
     def get_synagogue(self):
         pass
 
 
-class MyFormView(View):
+class PostFormView(View):
     """
     django's FormView is not what we need since it does a lot that we don't need (e.g implement a GET that render
     template, but we only want a simple post). So this simple FormView is exactly what we need. it is separated to
@@ -37,7 +43,13 @@ class MyFormView(View):
     form = <MyForm>
     and let the form do all the job.
     """
-    form = NotImplementedError
+    include_request = False
+
+    @property
+    @classmethod
+    @abc.abstractmethod
+    def form(cls):
+        pass
 
     def post(self, request):
         form = self.get_form()
@@ -54,8 +66,11 @@ class MyFormView(View):
     def validate(self, form):
         return form.is_valid()
 
-    def save(self, form, *args, **kwargs):
-        form.save(*args, **kwargs)
+    def save(self, form):
+        kwargs = {}
+        if self.include_request:
+            kwargs['request'] = self.request
+        form.save(**kwargs)
 
 
 class SafeGetMixin:
@@ -71,7 +86,7 @@ class SafeGetMixin:
         return args
 
 
-class SynagoguePermCheckFormView(SynagoguePermChecker, MyFormView):
+class SynagoguePermissionCheckFormView(SynagoguePermissionChecker, PostFormView):
     def get_synagogue(self):
         form = self.get_form()
         return form.get_synagogue()
@@ -81,7 +96,7 @@ class SynagogueList(ListView):
     model = Synagogue
 
 
-class SynagogueDetail(SynagoguePermChecker, DetailView, SafeGetMixin):
+class SynagogueDetail(SynagoguePermissionChecker, DetailView, SafeGetMixin):
     model = Synagogue
 
     def get_synagogue(self):
@@ -89,7 +104,7 @@ class SynagogueDetail(SynagoguePermChecker, DetailView, SafeGetMixin):
         return get_from_model(Synagogue, pk=pk)
 
 
-class MemberDetail(SynagoguePermChecker, DetailView, SafeGetMixin):
+class MemberDetail(SynagoguePermissionChecker, DetailView, SafeGetMixin):
     model = Member
 
     def get_synagogue(self):
@@ -98,12 +113,9 @@ class MemberDetail(SynagoguePermChecker, DetailView, SafeGetMixin):
         return member.synagogue
 
 
-class LoginView(MyFormView):
+class LoginView(PostFormView):
     form = LoginForm
-
-    def save(self, form, *args, **kwargs):
-        kwargs['request'] = self.request
-        super().save(form, *args, **kwargs)
+    include_request = True
 
 
 class LogoutView(View):
@@ -112,17 +124,14 @@ class LogoutView(View):
         return HttpResponse()
 
 
-class AddUserView(SynagoguePermCheckFormView):
+class AddUserView(SynagoguePermissionCheckFormView):
     form = AddUserToSynagogueForm
 
 
-class AddSynagogueView(MyFormView):
-    form = AddSynagogueForm
+class AddSynagogueView(PostFormView):
+    form = AddUserAndSynagogue
 
 
-class PasswordResetView(MyFormView):
+class PasswordResetView(PostFormView):
     form = PasswordResetForm
-
-    def save(self, form, *args, **kwargs):
-        kwargs['request'] = self.request
-        super().save(form, *args, **kwargs)
+    include_request = True

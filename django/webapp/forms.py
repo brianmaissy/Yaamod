@@ -12,14 +12,15 @@ class AddUserForm(Form):
     password = forms.CharField()
     email = forms.EmailField()
 
-    def add_user(self, group):
+    def add_user(self, group=None):
         user = User.objects.create_user(self.cleaned_data['username'],
                                         self.cleaned_data['email'],
                                         self.cleaned_data['password'])
-        user.groups.add(group)
+        if group is not None:
+            user.groups.add(group)
 
 
-class AddSynagogueForm(AddUserForm):
+class AddUserAndSynagogue(AddUserForm):
     name = forms.CharField()
 
     def save(self):
@@ -36,7 +37,7 @@ class LoginForm(Form):
         user = authenticate(request,
                             username=self.cleaned_data['username'], password=self.cleaned_data['password'])
         if user is not None:
-            login(self.request, user)
+            login(request, user)
         else:
             raise PermissionDenied()
 
