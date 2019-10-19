@@ -73,20 +73,22 @@ class PostFormView(View):
         form.save(**kwargs)
 
 
-class SafeGetMixin:
-    def safe_get(self, *names):
-        args = []
-        for name in names:
-            arg = self.kwargs.get(name)
-            if arg is None:
-                raise SuspiciousOperation()
-            args.append(arg)
-        if len(args) == 1:
-            args = args[0]
-        return args
+def safe_get(data, *names):
+    """
+    get some properties from dict safely (raise 400 if it is not there)
+    """
+    args = []
+    for name in names:
+        arg = data.get(name)
+        if arg is None:
+            raise SuspiciousOperation()
+        args.append(arg)
+    if len(args) == 1:
+        args = args[0]
+    return args
 
 
-class SynagoguePermissionCheckFormView(SynagoguePermissionChecker, PostFormView):
+class SynagoguePermissionCheckFormView(SynagoguePermissionChecker, PostFormView, abc.ABC):
     def get_synagogue(self):
         form = self.get_form()
         return form.get_synagogue()
@@ -96,19 +98,19 @@ class SynagogueList(ListView):
     model = Synagogue
 
 
-class SynagogueDetail(SynagoguePermissionChecker, DetailView, SafeGetMixin):
+class SynagogueDetail(SynagoguePermissionChecker, DetailView):
     model = Synagogue
 
     def get_synagogue(self):
-        pk = self.safe_get('pk')
+        pk = safe_get(self.kwargs, 'pk')
         return get_from_model(Synagogue, pk=pk)
 
 
-class MemberDetail(SynagoguePermissionChecker, DetailView, SafeGetMixin):
+class MemberDetail(SynagoguePermissionChecker, DetailView):
     model = Member
 
     def get_synagogue(self):
-        member_pk = self.safe_get('pk')
+        member_pk = safe_get(self.kwargs, 'pk')
         member = get_from_model(Member, pk=member_pk)
         return member.synagogue
 
