@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.auth.models import Group
+from django.core.exceptions import SuspiciousOperation
 from django_enumfield import enum
 from pyluach.dates import HebrewDate
 
@@ -13,6 +15,7 @@ class Yichus(enum.Enum):
 
 class Synagogue(models.Model):
     name = models.TextField()
+    admins = models.ForeignKey(Group, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.name
@@ -57,6 +60,9 @@ class Member(Person):
             hebrew_date += 1
         return hebrew_date
 
+    def __str__(self):
+        return self.full_name
+
     @property
     def bar_mitzvah_date(self):
         return nth_anniversary_of(self.hebrew_date_of_birth, 13)
@@ -89,3 +95,10 @@ class MaleMember(Member):
     @property
     def is_married(self):
         return self.wife is not None
+
+
+def get_from_model(model, **kwargs):
+    try:
+        return model.objects.get(**kwargs)
+    except model.DoesNotExist:
+        raise SuspiciousOperation()
