@@ -1,5 +1,17 @@
+from datetime import date
+from typing import Optional
+
 from pyluach.hebrewcal import Month, Year
 from pyluach.dates import HebrewDate
+
+
+def to_hebrew_date(gregorian_date: Optional[date], after_sunset: bool):
+    if gregorian_date is None:
+        return None
+    hebrew_date = HebrewDate.from_pydate(gregorian_date)
+    if after_sunset:
+        hebrew_date += 1
+    return hebrew_date
 
 
 def nth_anniversary_of(original_date, number_of_years):

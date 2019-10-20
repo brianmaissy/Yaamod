@@ -4,7 +4,7 @@ from django.core.exceptions import SuspiciousOperation
 from django_enumfield import enum
 from pyluach.dates import HebrewDate
 
-from .lib.date_utils import nth_anniversary_of
+from .lib.date_utils import nth_anniversary_of, to_hebrew_date
 
 
 class Yichus(enum.Enum):
@@ -26,6 +26,11 @@ class Person(models.Model):
     formal_name = models.TextField()
     date_of_death = models.DateField(null=True, blank=True)
     date_of_death_after_sunset = models.BooleanField(default=False)
+
+    @property
+    def hebrew_date_of_death(self):
+        return to_hebrew_date(self.date_of_death,
+                              self.date_of_death_after_sunset)
 
     @property
     def children(self):
@@ -55,21 +60,11 @@ class Member(Person):
 
     @property
     def hebrew_date_of_birth(self):
-        hebrew_date = HebrewDate.from_pydate(self.date_of_birth)
-        if self.date_of_birth_after_sunset:
-            hebrew_date += 1
-        return hebrew_date
+        return to_hebrew_date(self.date_of_birth,
+                              self.date_of_birth_after_sunset)
 
     def __str__(self):
         return self.full_name
-
-    @property
-    def bar_mitzvah_date(self):
-        return nth_anniversary_of(self.hebrew_date_of_birth, 13)
-
-    @property
-    def is_bar_mitzvah(self):
-        return HebrewDate.today() >= self.bar_mitzvah_date
 
     @property
     def is_male(self):
@@ -91,6 +86,18 @@ class MaleMember(Member):
     # see https://code.djangoproject.com/ticket/29998
     member_ptr = models.OneToOneField(Member, on_delete=models.CASCADE,
                                       parent_link=True)
+
+    @property
+    def bar_mitzvah_date(self):
+        return nth_anniversary_of(self.hebrew_date_of_birth, 13)
+
+    @property
+    def is_bar_mitzvah(self):
+        return HebrewDate.today() >= self.bar_mitzvah_date
+
+    @property
+    def can_get_aliya(self):
+        return self.is_bar_mitzvah and not self.cannot_get_aliya
 
     @property
     def is_married(self):

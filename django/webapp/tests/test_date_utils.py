@@ -1,7 +1,18 @@
+from datetime import date
 from unittest import TestCase
 from pyluach.dates import HebrewDate
 
-from webapp.lib.date_utils import nth_anniversary_of, next_anniversary_of
+from webapp.lib.date_utils import to_hebrew_date, nth_anniversary_of, \
+    next_anniversary_of
+
+
+class TestHebrewDate(TestCase):
+    def test_hebrew_date(self):
+        self.assertEquals(to_hebrew_date(None, False), None)
+        self.assertEquals(to_hebrew_date(date(1989, 11, 28), False),
+                          HebrewDate(5750, 8, 30))
+        self.assertEquals(to_hebrew_date(date(1989, 11, 28), True),
+                          HebrewDate(5750, 9, 1))
 
 
 class TestNthAnniversaryOf(TestCase):
