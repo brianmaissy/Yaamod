@@ -9,6 +9,7 @@ urlpatterns = [
          name='synagogue_detail'),
     path('member/<int:pk>', views.MemberDetail.as_view(),
          name='member_detail'),
+
     path('login', views.LoginView.as_view()),
     path('add_user', views.AddUserView.as_view()),
     path('add_synagogue', views.AddSynagogueView.as_view()),

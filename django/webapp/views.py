@@ -1,15 +1,15 @@
-from django.views.generic import DetailView, ListView, View
-from django.http import HttpResponse
-from django.contrib.auth import logout
-from django.contrib.auth.mixins import UserPassesTestMixin
-from django.core.exceptions import SuspiciousOperation
-from django.contrib.auth.forms import PasswordResetForm
-from django.contrib.auth.models import Group
-
-from webapp.models import Synagogue, Member, get_from_model
-from webapp.forms import AddUserAndSynagogue, LoginForm, AddUserToSynagogueForm
-
 import abc
+
+from django.contrib.auth import logout
+from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.models import Group
+from django.core.exceptions import SuspiciousOperation
+from django.http import HttpResponse
+from django.views.generic import DetailView, ListView, View
+
+from webapp.forms import AddUserAndSynagogue, LoginForm, AddUserToSynagogueForm
+from webapp.models import Synagogue, Member, get_from_model
 
 
 class SynagoguePermissionChecker(UserPassesTestMixin):
@@ -95,7 +95,9 @@ class SynagoguePermissionCheckFormView(SynagoguePermissionChecker, PostFormView,
 
 
 class SynagogueList(ListView):
-    model = Synagogue
+    def get_queryset(self):
+        return Synagogue.objects.filter(
+            admins__in=self.request.user.groups.all())
 
 
 class SynagogueDetail(SynagoguePermissionChecker, DetailView):
