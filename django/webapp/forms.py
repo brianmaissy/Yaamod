@@ -19,6 +19,9 @@ class AddUserForm(Form):
         if group is not None:
             user.groups.add(group)
 
+    def save(self):
+        self.add_user()
+
 
 class AddUserAndSynagogue(AddUserForm):
     name = forms.CharField()

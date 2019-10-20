@@ -7,6 +7,7 @@ from django.contrib.auth.models import Group
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpResponse
 from django.views.generic import DetailView, ListView, View
+from django.db import transaction
 
 from webapp.forms import AddUserAndSynagogue, LoginForm, AddUserToSynagogueForm
 from webapp.models import Synagogue, Member, get_from_model
@@ -51,6 +52,7 @@ class PostFormView(View):
     def form(cls):
         pass
 
+    @transaction.atomic
     def post(self, request):
         form = self.get_form()
         self.save(form)
