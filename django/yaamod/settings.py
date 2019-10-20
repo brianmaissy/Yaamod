@@ -120,6 +120,11 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-DEFAULT_FROM_EMAIL = 'support@yaamod.co.il'
-EMAIL_HOST = 'localhost'
-EMAIL_PORT = '1025'
+DEFAULT_FROM_EMAIL = 'noreply@yaamod.co.il'
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = 'apikey'
+# we do it in two steps to make the exception more indicative
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
+assert EMAIL_HOST_PASSWORD is not None, 'EMAIL_PASSWORD export is not set!'
