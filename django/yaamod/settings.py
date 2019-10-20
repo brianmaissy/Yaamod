@@ -25,7 +25,7 @@ SECRET_KEY = 's^gj$%6scvh384b*7g%9yd7jx#2))no-+jz3f9gjpg#mwh3!(2'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'www.yaamod.co.il']
 
 
 # Application definition
