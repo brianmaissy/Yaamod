@@ -1,37 +1,57 @@
 import React from 'react';
-import AppBar from '@material-ui/core/AppBar';
-import ToolBar from '@material-ui/core/ToolBar';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import Container from '@material-ui/core/Container';
-import Typography from '@material-ui/core/Typography';
-import {
-  useStyles,
-  theme
-} from '../utils/ui-utils'
+import { Menu, Icon } from 'antd';
 import { Link } from 'react-router-dom';
+import 'antd/dist/antd.css';
+
+
+const { SubMenu } = Menu;
 
 class NavBar extends React.Component {
-  state = {
-    value: 2
+  constructor(props){
+    super(props);
+  }
+
+  urlToIndex = {
+    "": "manage",
+    "findPrayer": "find",
+    "about": "about",
   };
 
-  handleChange = (event, value) => {
-    this.setState({ value });
+  state = {
+    current: this.urlToIndex[window.location.pathname.split("/")[1]]
+  };
+
+
+
+  handleClick = e => {
+    console.log('click ', e);
+    this.setState({
+      current: e.key,
+    });
   };
 
   render() {
     return (
-        <nav>
-          <div class="nav-wrapper">
-            <a href="#" class="brand-logo right">יעמוד</a>
-            <ul id="nav-mobile" class="left hide-on-med-and-down">
-              <li><Link to="/">ניהול בית כנסת</Link></li>
-              <li><Link to="/findSynagouge">חיפוש מניין</Link></li>
-              <li><Link to="/about">אודות</Link></li>
-            </ul>
-          </div>
-        </nav>
+      <Menu onClick={this.handleClick} selectedKeys={[this.state.current]} mode="horizontal">
+        <Menu.Item key={this.urlToIndex[""]}>
+          <Link to="/">
+            <Icon type="team" />
+            נהל בית כנסת
+          </Link>
+        </Menu.Item>
+        <Menu.Item key={this.urlToIndex["findPrayer"]}>
+          <Link to="/findPrayer">
+            <Icon type="search" />
+            מצא מניין
+          </Link>
+        </Menu.Item>
+        <Menu.Item key={this.urlToIndex["about"]}>
+          <Link to="/about">
+            <Icon type="info-circle" />
+            אודות
+          </Link>
+        </Menu.Item>
+      </Menu>
     );
   }
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import NavBar from './components/NavBar'
+import LoginForm from './components/Login'
 import Container from '@material-ui/core/Container';
 
 import {
@@ -16,6 +17,7 @@ class App extends React.Component {
     <Router>
       <NavBar />
       <Switch>
+        <Route exact path='/' component={LoginForm} />
         <Route path='/about' component={About} />
       </Switch>
     </Router>
