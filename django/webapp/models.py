@@ -1,5 +1,4 @@
 from django.contrib.auth.models import Group
-from django.core.exceptions import SuspiciousOperation
 from django.db import models
 from django_enumfield import enum
 from pyluach.dates import HebrewDate
@@ -147,10 +146,3 @@ class MaleMember(Member):
     @property
     def is_married(self):
         return self.wife is not None
-
-
-def get_from_model(model, **kwargs):
-    try:
-        return model.objects.get(**kwargs)
-    except model.DoesNotExist:
-        raise SuspiciousOperation()
