@@ -1,15 +1,15 @@
 import React from 'react';
 import NavBar from './components/NavBar'
-import LoginForm from './components/Login'
+import ManageRouter from './components/ManageRouter'
+import About from './components/About';
+
 
 import {
   BrowserRouter as Router,
   Switch,
   Route,
   Redirect,
-  useHistory
 } from 'react-router-dom';
-import About from './components/About';
 
 
 class App extends React.Component {
@@ -19,7 +19,7 @@ class App extends React.Component {
     <Router>
       <NavBar />
       <Switch>
-        <Route exact path='/manage' component={LoginForm} />
+        <Route path='/manage' component={ManageRouter} />
         <Route path='/about' component={About} />
       </Switch>
     </Router>
