@@ -10,7 +10,7 @@ const steps = [
   },
   {
     title: 'פרטי בית הכנסת',
-    content: 'Second-content',
+    content: NewSynagogue,
   },
   {
     title: 'אישור התנאים',
@@ -42,6 +42,7 @@ class RegisterSteps extends React.Component {
 
   render() {
     const { current } = this.state;
+    const CurrentSteps = steps[current].content
     return (
       <div>
         <Steps current={current}>
@@ -49,7 +50,9 @@ class RegisterSteps extends React.Component {
             <Step key={item.title} title={item.title} />
           ))}
         </Steps>
-        <div className="steps-content">{steps[current].content}</div>
+        <div className="steps-content">
+            <CurrentSteps config={this.state} onUpdateConfig={this.updateConfig}    />
+        </div>
         <div className="steps-action">
           {current < steps.length - 1 && (
             <Button type="primary" onClick={() => this.next()}>
