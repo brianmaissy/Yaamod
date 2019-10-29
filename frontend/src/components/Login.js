@@ -1,5 +1,6 @@
 import React from 'react';
 import 'antd/dist/antd.css';
+import { Link } from 'react-router-dom';
 
 import { Form, Icon, Input, Button, Checkbox, Layout, Card} from 'antd';
 import './Login.css'
@@ -51,7 +52,7 @@ class NormalLoginForm extends React.Component {
             <Button type="primary" htmlType="submit" className="login-form-button" icon="login">
               Log in
             </Button>
-             Or <a href="">register now!</a>
+             Or <Link to="/manage/register">register now!</Link>
           </Form.Item>
         </Form>
       </Card>

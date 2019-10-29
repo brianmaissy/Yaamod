@@ -1,6 +1,6 @@
 import React from 'react';
 import { Menu, Icon } from 'antd';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import 'antd/dist/antd.css';
 
 
@@ -12,7 +12,7 @@ class NavBar extends React.Component {
   }
 
   urlToIndex = {
-    "": "manage",
+    "manage": "manage",
     "findPrayer": "find",
     "about": "about",
   };
@@ -31,10 +31,16 @@ class NavBar extends React.Component {
   };
 
   render() {
+    if (window.location.pathname === "/") {
+      this.props.history.push("/manage")
+      this.setState({
+        current: "manage",
+      });
+    }
     return (
       <Menu onClick={this.handleClick} selectedKeys={[this.state.current]} mode="horizontal">
-        <Menu.Item key={this.urlToIndex[""]}>
-          <Link to="/">
+        <Menu.Item key={this.urlToIndex["manage"]}>
+          <Link to="/manage">
             <Icon type="team" />
             נהל בית כנסת
           </Link>
@@ -56,4 +62,4 @@ class NavBar extends React.Component {
   }
 }
 
-export default NavBar;
+export default withRouter(NavBar);
