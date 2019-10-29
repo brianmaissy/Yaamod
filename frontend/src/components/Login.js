@@ -9,14 +9,18 @@ const { Content } = Layout;
 
 class NormalLoginForm extends React.Component {
   handleSubmit = e => {
+    const { onUpdateToken } = this.props;
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
         console.log('Received values of form: ', values);
       }
     });
-  };
+    fetch("api-auth").then(response => {
+      onUpdateToken(response.newToken)
+    })
 
+  };
   render() {
     const { getFieldDecorator } = this.props.form;
     return (

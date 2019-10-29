@@ -18,6 +18,7 @@ class ManageRouter extends React.Component {
   }
 
   render() {
+    const {onUpdateToken} = this.props;
     if (!this.state.isLoggedIn && window.location.pathname === "/manage") {
       this.props.history.push("/manage/login")
     }
