@@ -1,5 +1,5 @@
 django~=2.2.6
 django-enumfield~=1.5
 pyluach~=1.0.1
-djangorestframework
-django-rest-passwordreset
+djangorestframework~=3.10.3
+django-rest-passwordreset~=1.0.0
