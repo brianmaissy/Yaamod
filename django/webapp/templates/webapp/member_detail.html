@@ -1,0 +1,31 @@
+<h2>{{ object.full_name }}</h2>
+<p>Member of <a href="{% url 'synagogue_detail' object.synagogue.id %}">{{ object.synagogue }}</a></p>
+<p>Date of birth: {{ object.date_of_birth }} ({{ object.hebrew_date_of_birth }})</p>
+{% if object.is_deceased %}
+    <p>Date of death: {{ object.date_of_death }} ({{ object.hebrew_date_of_death }})</p>
+{% endif %}
+<p>Father: {{ object.father }}</p>
+<p>Mother: {{ object.mother }}</p>
+<p>Paternal formal name: {{ object.paternal_formal_name }}</p>
+<p>Maternal formal name: {{ object.maternal_formal_name }}</p>
+
+{% if object.is_male %}
+    <p>Yichus: {{ object.male_member.yichus_name }}</p>
+    <p>Can get aliya: {{ object.male_member.can_get_aliya|yesno }}</p>
+    <p>Can be hazan: {{ object.male_member.can_be_hazan|yesno }}</p>
+    <p>Can read Torah: {{ object.male_member.can_read_torah|yesno }}</p>
+    <p>Can read haftarah: {{ object.male_member.can_read_haftarah|yesno }}</p>
+    {% if object.male_member.bar_mitzvah_parasha is not None %}
+        <p>Bar mitzvah parasha: {{ object.male_member.bar_mitzvah_parasha_name }}</p>
+    {% endif %}
+    {% if object.male_member.last_aliya_date %}
+        <p>Last aliya: {{ object.male_member.last_aliya_date }}</p>
+    {% endif %}
+    {% if object.male_member.is_married %}
+        <p>Wife: <a href="{% url 'member_detail' object.male_member.wife_id %}">{{ object.male_member.wife }}</a></p>
+    {% endif %}
+{% else %}
+    {% if object.is_married_woman %}
+        <p>Husband: <a href="{% url 'member_detail' object.husband.id %}">{{ object.husband }}</a></p>
+    {% endif %}
+{% endif %}
