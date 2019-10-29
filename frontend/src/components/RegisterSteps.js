@@ -1,16 +1,17 @@
 import React from 'react';
 import { Steps, Button, message } from 'antd';
+import Register from './Register'
 
 const { Step } = Steps;
 
 const steps = [
   {
     title: 'פרטי התחברות',
-    content: 'First-content',
+    content: Register,
   },
   {
     title: 'פרטי בית הכנסת',
-    content: NewSynagogue,
+    content: Register,
   },
   {
     title: 'אישור התנאים',
@@ -27,6 +28,7 @@ class RegisterSteps extends React.Component {
     super(props);
     this.state = {
       current: 0,
+      userDetails: {}
     };
   }
 

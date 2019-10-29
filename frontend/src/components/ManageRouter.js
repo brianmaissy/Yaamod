@@ -1,6 +1,6 @@
 import React from 'react';
 import LoginForm from "./Login"
-import Register from "./Register"
+import RegisterSteps from "./RegisterSteps"
 import About from "./About"
 
 import {
@@ -25,7 +25,7 @@ class ManageRouter extends React.Component {
       <Switch>
         <Route exact path='/manage' component={About} />
         <Route exact path='/manage/login' component={LoginForm} />
-        <Route exact path='/manage/register' component={Register} />
+        <Route exact path='/manage/register' component={RegisterSteps} />
       </Switch>
     );
   }
