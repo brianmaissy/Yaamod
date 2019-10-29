@@ -2,7 +2,8 @@ import React from 'react';
 import NavBar from './components/NavBar'
 import ManageRouter from './components/ManageRouter'
 import About from './components/About';
-import heIL from 'antd/es/locale/he_IL';
+import he_IL from 'antd/es/locale/he_IL';
+import { ConfigProvider } from 'antd';
 
 
 import {
@@ -26,7 +27,7 @@ class App extends React.Component {
   }
   render() {
     return (
-    <ConfigProvider locale={heIL}>
+    <ConfigProvider locale={he_IL}>
       <Router>
         <NavBar token={this.state.token} onUpdateToken={this.updateToken.bind(this)}/>
         <Switch>
