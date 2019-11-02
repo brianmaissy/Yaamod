@@ -2,28 +2,30 @@ from rest_framework import generics
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
 
-from webapp.permission import SynagoguePermission
+from webapp.permission import SynagoguePermission, AddUserPermissions
 from webapp.models import Synagogue
-from webapp.serializers import UserSerializer, SynagogueSerializer
+from webapp.serializers import AddUserSerializer, SynagogueSerializer
 from webapp.forms import LoginForm
 from django.http import Http404, HttpResponse
 from django.views import View
 from django.db import transaction
 
 
-class UserCreateAPIView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-
-class SynagogueListCreateView(generics.ListCreateAPIView):
-    queryset = Synagogue.objects.all()
-    serializer_class = SynagogueSerializer
-
-    # this post does a lot in different tables (user, group, synagogue), so let's make it atomic
+class AtomicPostMixin:
     @transaction.atomic
     def post(self, request, *args, **kwargs):
-        return super(SynagogueListCreateView, self).post(request, *args, **kwargs)
+        return super().post(request, *args, **kwargs)
+
+
+class UserCreateAPIView(AtomicPostMixin, generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = AddUserSerializer
+    permission_classes = (AddUserPermissions,)
+
+
+class SynagogueListCreateView(AtomicPostMixin, generics.ListCreateAPIView):
+    queryset = Synagogue.objects.all()
+    serializer_class = SynagogueSerializer
 
 
 class SynagogueDetailView(generics.RetrieveUpdateDestroyAPIView):
