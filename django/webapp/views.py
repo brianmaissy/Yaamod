@@ -8,6 +8,7 @@ from webapp.serializers import UserSerializer, SynagogueSerializer
 from webapp.forms import LoginForm
 from django.http import Http404, HttpResponse
 from django.views import View
+from django.db import transaction
 
 
 class UserCreateAPIView(generics.CreateAPIView):
@@ -18,6 +19,11 @@ class UserCreateAPIView(generics.CreateAPIView):
 class SynagogueListCreateView(generics.ListCreateAPIView):
     queryset = Synagogue.objects.all()
     serializer_class = SynagogueSerializer
+
+    # this post does a lot in different tables (user, group, synagogue), so let's make it atomic
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+        return super(SynagogueListCreateView, self).post(request, *args, **kwargs)
 
 
 class SynagogueDetailView(generics.RetrieveUpdateDestroyAPIView):
