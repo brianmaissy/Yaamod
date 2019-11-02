@@ -21,7 +21,7 @@ class AddUserSerializer(UserSerializer):
 
     def create(self, validated_data):
         synagogue = validated_data.pop('synagogue')
-        user = User.objects.create(**validated_data)
+        user = User.objects.create_user(**validated_data)
         user.groups.add(synagogue.admins)
         return user
 
