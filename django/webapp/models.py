@@ -1,4 +1,4 @@
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 from django.db import models
 from django_enumfield import enum
 from pyluach.dates import HebrewDate
@@ -16,6 +16,7 @@ class Yichus(enum.Enum):
 class Synagogue(models.Model):
     name = models.TextField()
     admins = models.ForeignKey(Group, on_delete=models.CASCADE)
+    member_creator = models.ForeignKey(User, on_delete=models.CASCADE)
 
     @property
     def member_set(self):

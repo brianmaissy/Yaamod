@@ -1,7 +1,8 @@
 from django.contrib.auth.models import Group
 from rest_framework import permissions
+import abc
 
-from webapp.serializers import AddUserSerializer
+from webapp.serializers import AddUserSerializer, GetAddMemberTokenSerializer
 
 
 def _check_request_for_synagogue(request, synagogue):
@@ -18,8 +19,22 @@ class SynagoguePermission(permissions.BasePermission):
         return _check_request_for_synagogue(request, obj)
 
 
-class AddUserPermissions(permissions.BasePermission):
+class SerializerPermissions(permissions.BasePermission):
+    @property
+    @classmethod
+    @abc.abstractmethod
+    def serializer(cls):
+        pass
+
     def has_permission(self, request, view):
-        serializer = AddUserSerializer(data=request.data)
+        serializer = self.serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        return _check_request_for_synagogue(request, serializer.validated_data['synagogue'])
+        return _check_request_for_synagogue(request, serializer.get_synagogue())
+
+
+class AddUserPermissions(SerializerPermissions):
+    serializer = AddUserSerializer
+
+
+class GetAddMemberTokenPermissions(SerializerPermissions):
+    serializer = GetAddMemberTokenSerializer

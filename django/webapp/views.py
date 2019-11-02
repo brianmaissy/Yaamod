@@ -1,14 +1,20 @@
 from rest_framework import generics
+from rest_framework.views import APIView
+from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
+
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
-
-from webapp.permission import SynagoguePermission, AddUserPermissions
-from webapp.models import Synagogue
-from webapp.serializers import AddUserSerializer, SynagogueSerializer
-from webapp.forms import LoginForm
-from django.http import Http404, HttpResponse
 from django.views import View
 from django.db import transaction
+from django.core.exceptions import PermissionDenied
+from django.contrib.auth import authenticate, login
+from django.http import HttpResponse
+
+
+from webapp.permission import SynagoguePermission, AddUserPermissions, GetAddMemberTokenPermissions
+from webapp.models import Synagogue
+from webapp.serializers import AddUserSerializer, SynagogueSerializer, LoginSerializer, GetAddMemberTokenSerializer
 
 
 class AtomicPostMixin:
@@ -34,16 +40,32 @@ class SynagogueDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (SynagoguePermission,)
 
 
-class LoginView(View):
+class LoginView(APIView):
     def post(self, request):
-        form = LoginForm(self.request.POST)
-        if not form.is_valid():
-            raise Http404()
-        form.save(request)
-        return HttpResponse()
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = authenticate(request, **serializer.validated_data)
+        if user is not None:
+            login(request, user)
+        else:
+            raise PermissionDenied()
+
+        return Response()
 
 
 class LogoutView(View):
     def post(self, request):
         logout(request)
         return HttpResponse()
+
+
+class GetAddMemberTokenView(APIView):
+    permission_classes = (GetAddMemberTokenPermissions,)
+
+    def post(self, request):
+        serializer = GetAddMemberTokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        synagogue = serializer.validated_data['synagogue']
+        token, created = Token.objects.get_or_create(user=synagogue.member_creator)
+        return Response({'token': token.key})

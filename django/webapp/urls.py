@@ -8,6 +8,7 @@ urlpatterns = [
     path('user', views.UserCreateAPIView.as_view()),
     path('login', views.LoginView.as_view()),
     path('logout', views.LogoutView.as_view()),
+    path('member_creator_token', views.GetAddMemberTokenView.as_view()),
 
     path(r'password_reset/', include('django_rest_passwordreset.urls'))
 ]
