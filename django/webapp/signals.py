@@ -11,8 +11,8 @@ def password_reset_token_created(sender, reset_password_token, *args, **kwargs):
     # send an e-mail to the user
     context = {
         'username': reset_password_token.user.username,
-        # TODO: make this a real endpoint
-        'reset_password_url': "https://yaamond.co.il/reset/?token={token}".format(token=reset_password_token.key)
+        # TODO: make this a real endpoint, and build the url with reverse() rather than hard-coding it
+        'reset_password_url': "https://yaamod.co.il/reset/?token={token}".format(token=reset_password_token.key)
     }
 
     send_mail(reset_password_token.user.email,
