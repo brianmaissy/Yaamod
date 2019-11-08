@@ -1,50 +1,54 @@
 from rest_framework.serializers import ModelSerializer, CharField, PrimaryKeyRelatedField, Serializer
 from webapp.models import Synagogue
 from django.contrib.auth.models import User, Group
+import abc
 
 
-class UserSerializer(ModelSerializer):
+class SynagoguePermissionCheckMixin:
+    @abc.abstractmethod
+    def get_synagogue(self):
+        pass
+
+    def needs_synagogue_check(self):
+        return True
+
+
+class UserSerializer(ModelSerializer, SynagoguePermissionCheckMixin):
     password = CharField(write_only=True)
+    synagogue = PrimaryKeyRelatedField(queryset=Synagogue.objects.all(), write_only=True, required=False)
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password')
-
-
-class AddUserSerializer(UserSerializer):
-    synagogue = PrimaryKeyRelatedField(queryset=Synagogue.objects.all(), write_only=True)
-
-    class Meta:
-        model = User
-        fields = UserSerializer.Meta.fields + ('synagogue',)
+        fields = ('username', 'email', 'password', 'synagogue')
 
     def create(self, validated_data):
-        synagogue = validated_data.pop('synagogue')
+        synagogue = validated_data.pop('synagogue') if validated_data.get('synagogue') else None
         user = User.objects.create_user(**validated_data)
-        user.groups.add(synagogue.admins)
+        if synagogue is not None:
+            user.groups.add(synagogue.admins)
+
         return user
 
     def get_synagogue(self):
         return self.validated_data['synagogue']
 
+    def needs_synagogue_check(self):
+        return self.validated_data.get('synagogue') is not None
+
 
 class SynagogueSerializer(ModelSerializer):
-    user = UserSerializer(write_only=True)
-
     class Meta:
         model = Synagogue
-        fields = ('name', 'user')
+        fields = ('name',)
 
     def create(self, validated_data):
         admins = Group.objects.create(name=u'synagogue_{0}_admins'.format(validated_data['name']))
         member_creator = User.objects.create_user('{0}_member_creator'.format(validated_data['name']))
         validated_data['admins'] = admins
         validated_data['member_creator'] = member_creator
-        user_data = validated_data.pop('user')
 
         synagogue = Synagogue.objects.create(**validated_data)
-        user = User.objects.create_user(**user_data)
-        user.groups.add(admins)
+        self.context['request'].user.groups.add(admins)
 
         return synagogue
 
@@ -54,7 +58,7 @@ class LoginSerializer(Serializer):
     password = CharField()
 
 
-class GetAddMemberTokenSerializer(Serializer):
+class MakeAddMemberTokenSerializer(Serializer, SynagoguePermissionCheckMixin):
     synagogue = PrimaryKeyRelatedField(queryset=Synagogue.objects.all(), write_only=True)
 
     def get_synagogue(self):
