@@ -4,9 +4,12 @@ import logging
 from webapp.mail import send_mail
 
 
+logger = logging.Logger('signals')
+
+
 @receiver(reset_password_token_created)
 def password_reset_token_created(sender, reset_password_token, *args, **kwargs):
-    logging.info('got password reset request for {0}'.format(reset_password_token.user.email))
+    logger.info('got password reset request for {0}'.format(reset_password_token.user.email))
 
     # send an e-mail to the user
     context = {

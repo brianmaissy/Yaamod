@@ -67,7 +67,7 @@ class LogoutView(View):
         return HttpResponse()
 
 
-class GetAddMemberTokenView(APIView):
+class MakeAddMemberTokenView(APIView):
     permission_classes = (GetAddMemberTokenPermissions,)
 
     def post(self, request):
