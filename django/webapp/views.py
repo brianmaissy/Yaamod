@@ -10,26 +10,33 @@ from django.db import transaction
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponse
+from django.utils.decorators import method_decorator
 
 
 from webapp.permission import SynagoguePermission, AddUserPermissions, GetAddMemberTokenPermissions
 from webapp.models import Synagogue
 from webapp.serializers import AddUserSerializer, SynagogueSerializer, LoginSerializer, GetAddMemberTokenSerializer
 
-
-class AtomicPostMixin:
-    @transaction.atomic
-    def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
+from functools import wraps
 
 
-class UserCreateAPIView(AtomicPostMixin, generics.CreateAPIView):
+def atomic_wrapper(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        with transaction.atomic():
+            return f(*args, **kwargs)
+    return wrapper
+
+
+@method_decorator(atomic_wrapper, name='post')
+class UserCreateAPIView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = AddUserSerializer
     permission_classes = (AddUserPermissions,)
 
 
-class SynagogueListCreateView(AtomicPostMixin, generics.ListCreateAPIView):
+@method_decorator(atomic_wrapper, name='post')
+class SynagogueListCreateView(generics.ListCreateAPIView):
     queryset = Synagogue.objects.all()
     serializer_class = SynagogueSerializer
 
