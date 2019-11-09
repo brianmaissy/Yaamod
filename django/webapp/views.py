@@ -1,42 +1,30 @@
-from rest_framework import generics
-from rest_framework.views import APIView
-from rest_framework.authtoken.models import Token
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-
-from django.contrib.auth.models import User
-from django.contrib.auth import logout
-from django.views import View
-from django.db import transaction
-from django.core.exceptions import PermissionDenied
 from django.contrib.auth import authenticate, login
+from django.contrib.auth import logout
+from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
+from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.utils.decorators import method_decorator
+from django.views import View
+from rest_framework import generics
+from rest_framework.authtoken.models import Token
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-
-from webapp.permission import SynagoguePermission, AddUserPermissions, MakeAddMemberTokenPermissions
 from webapp.models import Synagogue
+from webapp.permission import SynagoguePermission, AddUserPermissions, MakeAddMemberTokenPermissions
 from webapp.serializers import UserSerializer, SynagogueSerializer, LoginSerializer, MakeAddMemberTokenSerializer
 
-from functools import wraps
 
-
-def atomic_wrapper(f):
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        with transaction.atomic():
-            return f(*args, **kwargs)
-    return wrapper
-
-
-@method_decorator(atomic_wrapper, name='dispatch')
+@method_decorator(atomic, name='dispatch')
 class UserCreateAPIView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (AddUserPermissions,)
 
 
-@method_decorator(atomic_wrapper, name='dispatch')
+@method_decorator(atomic, name='dispatch')
 class SynagogueListCreateView(generics.ListCreateAPIView):
     queryset = Synagogue.objects.all()
     serializer_class = SynagogueSerializer

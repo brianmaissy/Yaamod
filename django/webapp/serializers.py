@@ -1,7 +1,9 @@
-from rest_framework.serializers import ModelSerializer, CharField, PrimaryKeyRelatedField, Serializer
-from webapp.models import Synagogue
-from django.contrib.auth.models import User, Group
 import abc
+
+from django.contrib.auth.models import User, Group
+from rest_framework.serializers import ModelSerializer, CharField, PrimaryKeyRelatedField, Serializer
+
+from webapp.models import Synagogue
 
 
 class SynagoguePermissionCheckMixin:
@@ -22,7 +24,7 @@ class UserSerializer(ModelSerializer, SynagoguePermissionCheckMixin):
         fields = ('username', 'email', 'password', 'synagogue')
 
     def create(self, validated_data):
-        synagogue = validated_data.pop('synagogue') if validated_data.get('synagogue') else None
+        synagogue = validated_data.pop('synagogue', None)
         user = User.objects.create_user(**validated_data)
         if synagogue is not None:
             user.groups.add(synagogue.admins)
@@ -42,7 +44,7 @@ class SynagogueSerializer(ModelSerializer):
         fields = ('name',)
 
     def create(self, validated_data):
-        admins = Group.objects.create(name=u'synagogue_{0}_admins'.format(validated_data['name']))
+        admins = Group.objects.create(name='synagogue_{0}_admins'.format(validated_data['name']))
         member_creator = User.objects.create_user('{0}_member_creator'.format(validated_data['name']))
         validated_data['admins'] = admins
         validated_data['member_creator'] = member_creator

@@ -41,8 +41,7 @@ class Person(models.Model):
 
     @property
     def hebrew_date_of_death(self):
-        return to_hebrew_date(self.date_of_death,
-                              self.date_of_death_after_sunset)
+        return to_hebrew_date(self.date_of_death, self.date_of_death_after_sunset)
 
     @property
     def children(self):
@@ -57,10 +56,8 @@ class Member(Person):
     last_name = models.TextField()
     date_of_birth = models.DateField()
     date_of_birth_after_sunset = models.BooleanField(default=False)
-    father = models.ForeignKey(Person, on_delete=models.PROTECT,
-                               related_name='children_of_father')
-    mother = models.ForeignKey(Person, on_delete=models.PROTECT,
-                               related_name='children_of_mother')
+    father = models.ForeignKey(Person, on_delete=models.PROTECT, related_name='children_of_father')
+    mother = models.ForeignKey(Person, on_delete=models.PROTECT, related_name='children_of_mother')
 
     @property
     def first_name(self):
@@ -76,18 +73,15 @@ class Member(Person):
 
     @property
     def paternal_formal_name(self):
-        return '{} {} {}'.format(self.formal_name, self.son_or_daughter,
-                                 self.father.formal_name)
+        return '{} {} {}'.format(self.formal_name, self.son_or_daughter, self.father.formal_name)
 
     @property
     def maternal_formal_name(self):
-        return '{} {} {}'.format(self.formal_name, self.son_or_daughter,
-                                 self.mother.formal_name)
+        return '{} {} {}'.format(self.formal_name, self.son_or_daughter, self.mother.formal_name)
 
     @property
     def hebrew_date_of_birth(self):
-        return to_hebrew_date(self.date_of_birth,
-                              self.date_of_birth_after_sunset)
+        return to_hebrew_date(self.date_of_birth, self.date_of_birth_after_sunset)
 
     def __str__(self):
         return self.full_name
@@ -107,17 +101,12 @@ class MaleMember(Member):
     can_be_hazan = models.BooleanField(default=False)
     can_read_torah = models.BooleanField(default=False)
     can_read_haftarah = models.BooleanField(default=False)
-    bar_mitzvah_parasha = models.IntegerField(null=True, blank=True,
-                                              choices=enumerate(PARSHIOS))
+    bar_mitzvah_parasha = models.IntegerField(null=True, blank=True, choices=enumerate(PARSHIOS))
     last_aliya_date = models.DateField(null=True, blank=True)
-    wife = models.OneToOneField(Member, on_delete=models.CASCADE,
-                                null=True, blank=True,
-                                related_name='husband')
+    wife = models.OneToOneField(Member, on_delete=models.CASCADE, null=True, blank=True, related_name='husband')
     # this is necessary because of a bug in Django.
     # see https://code.djangoproject.com/ticket/29998
-    member_ptr = models.OneToOneField(Member, on_delete=models.CASCADE,
-                                      parent_link=True,
-                                      related_name='male_member')
+    member_ptr = models.OneToOneField(Member, on_delete=models.CASCADE, parent_link=True, related_name='male_member')
 
     @property
     def yichus_name(self):
@@ -140,9 +129,7 @@ class MaleMember(Member):
 
     @property
     def can_get_aliya(self):
-        return (self.is_bar_mitzvah and
-                not self.is_deceased and
-                not self.cannot_get_aliya)
+        return self.is_bar_mitzvah and not self.is_deceased and not self.cannot_get_aliya
 
     @property
     def is_married(self):
