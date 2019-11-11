@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from pyluach.dates import HebrewDate
 
-from webapp.lib.date_utils import to_hebrew_date, nth_anniversary_of, next_anniversary_of
+from webapp.lib.date_utils import to_hebrew_date, nth_anniversary_of, next_anniversary_of, next_reading_of_parasha
 
 
 class TestHebrewDate(TestCase):
@@ -63,3 +63,21 @@ class TestNextAnniversaryOf(TestCase):
         original_date = HebrewDate(5750, 8, 1)
         next_anniversary = HebrewDate(5751, 8, 1)
         self.assertEquals(next_anniversary_of(original_date, original_date + 1), next_anniversary)
+
+
+class TestNextReadingOfParasha(TestCase):
+    def test_next_reading_is_today(self):
+        self.assertEquals(next_reading_of_parasha(2, HebrewDate(5780, 8, 11)), HebrewDate(5780, 8, 11))
+
+    def test_next_reading_is_this_shabbat(self):
+        self.assertEquals(next_reading_of_parasha(2, HebrewDate(5780, 8, 5)), HebrewDate(5780, 8, 11))
+
+    def test_next_reading_is_later_this_year(self):
+        self.assertEquals(next_reading_of_parasha(2, HebrewDate(5780, 7, 5)), HebrewDate(5780, 8, 11))
+
+    def test_next_reading_is_next_year(self):
+        self.assertEquals(next_reading_of_parasha(2, HebrewDate(5780, 8, 12)), HebrewDate(5781, 8, 13))
+
+    def test_double_parasha(self):
+        self.assertEquals(next_reading_of_parasha(21, HebrewDate(5780, 8, 1)),
+                          next_reading_of_parasha(21, HebrewDate(5780, 8, 1)))

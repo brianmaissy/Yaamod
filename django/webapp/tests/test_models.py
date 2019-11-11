@@ -4,16 +4,20 @@ from django.contrib.auth.models import Group, User
 from django.test import TestCase
 from pyluach.dates import HebrewDate
 
-from webapp.lib.date_utils import nth_anniversary_of
-from webapp.models import Synagogue, Person, Member, MaleMember, Yichus
+from webapp.lib.date_utils import nth_anniversary_of, next_anniversary_of
+from webapp.models import Synagogue, Person, Member, MaleMember, Yichus, AliyaPrecedenceReason
+
+
+def make_synagogue():
+    admins = Group.objects.create(name='admins')
+    return Synagogue.objects.create(name='Klal Yisrael', admins=admins,
+                                    member_creator=User.objects.create(username='admin'))
 
 
 class MembersTestCase(TestCase):
     def setUp(self):
         today = date.today()
-        admins = Group.objects.create(name='admins')
-        self.synagogue = Synagogue.objects.create(
-            name='Klal Yisrael', admins=admins, member_creator=User.objects.create(username='admin'))
+        self.synagogue = make_synagogue()
         self.father = Person.objects.create(formal_name='Dad', synagogue=self.synagogue)
         self.mother = Person.objects.create(formal_name='Mom', synagogue=self.synagogue)
         self.daughter = Member.objects.create(
@@ -129,3 +133,115 @@ class TestMaleMember(MembersTestCase):
         self.assertEquals(self.son.wife, self.wife)
         self.assertEquals(self.son.wife.husband, self.son)
         self.assertTrue(self.wife.is_married_woman)
+
+
+class MaleMembersTestCase(TestCase):
+    def setUp(self):
+        self.synagogue = make_synagogue()
+        self.father = Person.objects.create(formal_name='Dad', synagogue=self.synagogue,
+                                            date_of_death=date(2018, 11, 11))
+        self.mother = Person.objects.create(formal_name='Mom', synagogue=self.synagogue,
+                                            date_of_death=date(2017, 3, 3))
+        self.reuven = MaleMember.objects.create(
+            formal_name='Reuven', synagogue=self.synagogue, last_name='Levi', date_of_birth=date(2000, 1, 1),
+            father=self.father, mother=self.mother, yichus=Yichus.LEVI, bar_mitzvah_parasha=12,
+            last_aliya_date=date(2019, 12, 1))
+        self.wife = Member.objects.create(
+            formal_name='Rivkah', synagogue=self.synagogue, last_name='Levi', date_of_birth=date(2000, 1, 1),
+            father=Person.objects.create(formal_name='Father in Law', synagogue=self.synagogue),
+            mother=Person.objects.create(formal_name='Mother in Law', synagogue=self.synagogue))
+        self.shimon = MaleMember.objects.create(
+            formal_name='Shimon', synagogue=self.synagogue, last_name='Levi', date_of_birth=date(2000, 1, 1),
+            father=self.father, mother=self.mother, yichus=Yichus.LEVI, wife=self.wife)
+        self.baby = Member.objects.create(
+            formal_name='Shoshana', synagogue=self.synagogue, last_name='Levi', date_of_birth=date(2019, 1, 1),
+            father=self.shimon, mother=self.wife)
+        self.brother_in_law = MaleMember.objects.create(
+            formal_name='Moshe', synagogue=self.synagogue, last_name='Cohen', date_of_birth=date(2000, 1, 1),
+            father=self.wife.father, mother=self.wife.mother, yichus=Yichus.COHEN, last_aliya_date=date(2019, 11, 1))
+
+
+class TestMaleMembersManager(MaleMembersTestCase):
+    def test_cohanim(self):
+        self.assertEquals(set(MaleMember.cohanim.all()), {self.brother_in_law})
+
+    def test_leviim(self):
+        self.assertEquals(set(MaleMember.leviim.all()), {self.reuven, self.shimon})
+
+
+class TestAliyaPrecedence(MaleMembersTestCase):
+    def test_bar_mitzvah_parasha_shabbat(self):
+        self.assertFalse(self.reuven.is_bar_mitzvah_parasha_shabbat(HebrewDate(5780, 9, 1)))
+        self.assertTrue(self.reuven.is_bar_mitzvah_parasha_shabbat(HebrewDate(5780, 10, 16)))
+        self.assertTrue(self.reuven.is_bar_mitzvah_parasha_shabbat(HebrewDate(5780, 10, 21)))
+        self.assertFalse(self.reuven.is_bar_mitzvah_parasha_shabbat(HebrewDate(5780, 10, 22)))
+        self.assertEquals(self.reuven.next_bar_mitzvah_parasha_shabbat(HebrewDate(5780, 9, 1)),
+                          HebrewDate(5780, 10, 21))
+        self.assertEquals(self.reuven.next_bar_mitzvah_parasha_shabbat(HebrewDate(5780, 10, 21)),
+                          HebrewDate(5780, 10, 21))
+        self.assertEquals(self.reuven.next_bar_mitzvah_parasha_shabbat(HebrewDate(5780, 10, 22)),
+                          HebrewDate(5781, 10, 25))
+
+        # has no bar mitzvah parasha defined
+        self.assertFalse(self.shimon.is_bar_mitzvah_parasha_shabbat())
+        self.assertIsNone(self.shimon.next_bar_mitzvah_parasha_shabbat())
+
+    def test_immediate_family_members(self):
+        self.assertEquals(self.father.immediate_family_members, {self.reuven.member, self.shimon.member})
+        self.assertEquals(self.mother.immediate_family_members, {self.reuven.member, self.shimon.member})
+        self.assertEquals(self.reuven.immediate_family_members, {self.mother, self.father, self.shimon.member})
+        self.assertEquals(self.shimon.immediate_family_members,
+                          {self.mother, self.father, self.reuven.member, self.wife, self.baby})
+        self.assertEquals(self.shimon.immediate_family_members,
+                          {self.mother, self.father, self.reuven.member, self.wife, self.baby})
+        self.assertEquals(self.wife.immediate_family_members,
+                          {self.wife.mother, self.wife.father, self.shimon.member, self.brother_in_law.member,
+                           self.baby})
+        self.assertEquals(self.brother_in_law.immediate_family_members,
+                          {self.wife.mother, self.wife.father, self.wife})
+
+    def test_yahrzeit_shabbat(self):
+        self.assertEquals(next_anniversary_of(self.reuven.father.hebrew_date_of_death, HebrewDate(5780, 8, 1)),
+                          HebrewDate(5780, 9, 3))
+        self.assertFalse(self.reuven.is_yahrzeit_shabbat(HebrewDate(5780, 8, 1)))
+        self.assertTrue(self.reuven.is_yahrzeit_shabbat(HebrewDate(5780, 8, 28)))
+        self.assertTrue(self.reuven.is_yahrzeit_shabbat(HebrewDate(5780, 9, 2)))
+        self.assertFalse(self.reuven.is_yahrzeit_shabbat(HebrewDate(5780, 9, 3)))
+        self.assertFalse(self.reuven.is_yahrzeit_shabbat(HebrewDate(5780, 9, 9)))
+        self.assertEquals(self.reuven.next_yahrzeit_shabbatot(HebrewDate(5780, 8, 1)),
+                          [HebrewDate(5780, 9, 2), HebrewDate(5780, 12, 4)])
+        self.assertEquals(self.reuven.next_yahrzeit_shabbatot(HebrewDate(5780, 9, 1)),
+                          [HebrewDate(5780, 9, 2), HebrewDate(5780, 12, 4)])
+        self.assertEquals(self.reuven.next_yahrzeit_shabbatot(HebrewDate(5780, 9, 2)),
+                          [HebrewDate(5780, 9, 2), HebrewDate(5780, 12, 4)])
+        self.assertEquals(self.reuven.next_yahrzeit_shabbatot(HebrewDate(5780, 9, 3)),
+                          [HebrewDate(5780, 12, 4), HebrewDate(5781, 8, 27)])
+
+        # has no yahrzeits defined
+        self.assertFalse(self.brother_in_law.is_yahrzeit_shabbat())
+        self.assertEquals(self.brother_in_law.next_yahrzeit_shabbatot(), [])
+
+    def test_aliya_precedence(self):
+        self.assertEquals(self.reuven.get_aliya_precedence(HebrewDate(5780, 10, 21)),
+                          AliyaPrecedenceReason.BAR_MITZVAH_PARASHA)
+        self.assertEquals(self.shimon.get_aliya_precedence(HebrewDate(5780, 10, 21)),
+                          AliyaPrecedenceReason.TIME_SINCE_LAST_ALIYA)
+        self.assertEquals(self.shimon.get_aliya_precedence(HebrewDate(5780, 9, 2)), AliyaPrecedenceReason.YAHRZEIT)
+        self.assertEquals(self.shimon.get_aliya_precedence(HebrewDate(5780, 9, 2)), AliyaPrecedenceReason.YAHRZEIT)
+        self.assertIsNone(self.brother_in_law.get_aliya_precedence(HebrewDate(5780, 9, 2)))
+
+    def test_suggested_olim(self):
+        self.assertEquals(MaleMember.objects.get_suggested_olim(HebrewDate(5780, 10, 21)),
+                          [(self.reuven, AliyaPrecedenceReason.BAR_MITZVAH_PARASHA),
+                           (self.shimon, AliyaPrecedenceReason.TIME_SINCE_LAST_ALIYA)])
+        self.assertEquals(MaleMember.objects.get_suggested_olim(HebrewDate(5780, 9, 2)),
+                          [(self.shimon, AliyaPrecedenceReason.YAHRZEIT),
+                           (self.reuven, AliyaPrecedenceReason.YAHRZEIT)])
+        self.assertEquals(MaleMember.objects.get_suggested_olim(HebrewDate(5780, 11, 15)),
+                          [(self.shimon, AliyaPrecedenceReason.TIME_SINCE_LAST_ALIYA),
+                           (self.brother_in_law, AliyaPrecedenceReason.TIME_SINCE_LAST_ALIYA)])
+
+        self.assertEquals(MaleMember.cohanim.get_suggested_olim(HebrewDate(5780, 11, 15)),
+                          [(self.brother_in_law, AliyaPrecedenceReason.TIME_SINCE_LAST_ALIYA)])
+        self.assertEquals(MaleMember.leviim.get_suggested_olim(HebrewDate(5780, 11, 15)),
+                          [(self.shimon, AliyaPrecedenceReason.TIME_SINCE_LAST_ALIYA)])
