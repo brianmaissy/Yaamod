@@ -7,10 +7,13 @@ For more information on this file, see
 https://docs.djangoproject.com/en/2.2/howto/deployment/wsgi/
 """
 
+import sys
 import os
-
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'yaamod.settings')
+path = '/var/yaamod.co.il/yaamod/django'
+if path not in sys.path:
+    sys.path.append(path)
 
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'yaamod.settings')
 application = get_wsgi_application()
