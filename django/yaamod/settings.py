@@ -37,7 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles'
+    'django.contrib.staticfiles',
+    'rest_framework',
+    'django_rest_passwordreset',
+    'rest_framework.authtoken'
 ]
 
 MIDDLEWARE = [
@@ -100,6 +103,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication'
+    ]
+}
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
@@ -121,6 +132,11 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
-DEFAULT_FROM_EMAIL = 'support@yaamod.co.il'
-EMAIL_HOST = 'localhost'
-EMAIL_PORT = '1025'
+DEFAULT_FROM_EMAIL = 'noreply@yaamod.co.il'
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = 'apikey'
+# we do it in two steps to make the exception more indicative
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
+assert EMAIL_HOST_PASSWORD is not None, 'EMAIL_PASSWORD export is not set!'
