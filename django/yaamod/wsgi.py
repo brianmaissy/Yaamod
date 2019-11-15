@@ -11,9 +11,9 @@ import sys
 import os
 from django.core.wsgi import get_wsgi_application
 
-path = '/var/yaamod.co.il/VG/django'
+path = '/var/yaamod.co.il/yaamod/django'
 if path not in sys.path:
-        sys.path.append(path)
+    sys.path.append(path)
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'yaamod.settings')
 application = get_wsgi_application()
