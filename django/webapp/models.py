@@ -7,7 +7,7 @@ from django_enumfield import enum
 from pyluach.dates import HebrewDate
 from pyluach.parshios import PARSHIOS, getparsha
 
-from .lib.date_utils import nth_anniversary_of, to_hebrew_date, next_anniversary_of, next_reading_of_parasha
+from .lib.date_utils import nth_anniversary_of, to_hebrew_date, next_anniversary_of
 
 
 class Yichus(enum.Enum):
@@ -19,8 +19,9 @@ class Yichus(enum.Enum):
 class AliyaPrecedenceReason(enum.Enum):
     # in order of precedence
     YAHRZEIT = 1
-    BAR_MITZVAH_PARASHA = 2
-    TIME_SINCE_LAST_ALIYA = 3
+    BIRTHDAY = 2
+    BAR_MITZVAH_PARASHA = 3
+    TIME_SINCE_LAST_ALIYA = 4
 
 
 class Synagogue(models.Model):
@@ -119,13 +120,15 @@ class Member(Person):
 
 
 class MaleMemberManager(models.Manager):
-    def get_suggested_olim(self, reference_date=None) -> List['MaleMember']:
-        suggested_olim: Tuple[MaleMember, AliyaPrecedenceReason] = []
+    def get_olim(self):
+        return set(male_member for male_member in self.get_queryset().all() if male_member.can_get_aliya)
+
+    def get_suggested_olim(self, reference_date=None) -> List[Tuple['MaleMember', AliyaPrecedenceReason]]:
+        suggested_olim: List[Tuple[MaleMember, AliyaPrecedenceReason]] = []
         for male_member in self.get_queryset().all():
-            if male_member.can_get_aliya:
-                precedence = male_member.get_aliya_precedence(reference_date)
-                if precedence:
-                    suggested_olim.append((male_member, precedence))
+            precedence = male_member.get_aliya_precedence(reference_date)
+            if precedence:
+                suggested_olim.append((male_member, precedence))
         return sorted(suggested_olim, key=lambda suggestion: (suggestion[1], suggestion[0].last_aliya_date or date.min))
 
 
@@ -137,6 +140,11 @@ class CohanimManager(MaleMemberManager):
 class LeviimManager(MaleMemberManager):
     def get_queryset(self):
         return super().get_queryset().filter(yichus=Yichus.LEVI)
+
+
+class HaftarahReadersManager(MaleMemberManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(can_read_haftarah=True)
 
 
 class MaleMember(Member):
@@ -155,6 +163,7 @@ class MaleMember(Member):
     objects = MaleMemberManager()
     cohanim = CohanimManager()
     leviim = LeviimManager()
+    haftarah_readers = HaftarahReadersManager()
 
     @property
     def yichus_name(self):
@@ -171,19 +180,14 @@ class MaleMember(Member):
     def bar_mitzvah_date(self):
         return nth_anniversary_of(self.hebrew_date_of_birth, 13)
 
-    def is_bar_mitzvah_parasha_shabbat(self, reference_date=None):
+    def is_bar_mitzvah_parasha_shabbat(self, on_date: HebrewDate):
         if self.bar_mitzvah_parasha is None:
+            # we don't know when it is
             return None
-        if reference_date is None:
-            reference_date = HebrewDate.today()
-        parshiot = getparsha(reference_date.shabbos(), israel=True)
+        if on_date.weekday() != 7:
+            return False
+        parshiot = getparsha(on_date, israel=True)
         return parshiot is not None and self.bar_mitzvah_parasha in parshiot
-
-    def next_bar_mitzvah_parasha_shabbat(self, reference_date=None):
-        if self.bar_mitzvah_parasha is None:
-            return None
-        else:
-            return next_reading_of_parasha(self.bar_mitzvah_parasha, reference_date)
 
     @property
     def immediate_family_members(self):
@@ -192,42 +196,26 @@ class MaleMember(Member):
             family_members.add(self.wife)
         return family_members
 
-    def is_yahrzeit_shabbat(self, reference_date=None):
-        if reference_date is None:
-            reference_date = HebrewDate.today()
-        upcoming_shabbat = reference_date.shabbos()
+    def needs_yahrzeit_aliya(self, on_date: HebrewDate):
         for family_member in self.immediate_family_members:
             if family_member.is_deceased:  # chas v'shalom
-                yahrzeit = next_anniversary_of(family_member.hebrew_date_of_death, reference_date)
-                if upcoming_shabbat <= yahrzeit < upcoming_shabbat + 7:
+                yahrzeit = next_anniversary_of(family_member.hebrew_date_of_death, on_date)
+                if yahrzeit == on_date:
+                    # bo b'yom
                     return True
-
+                elif on_date.weekday() == 7 and on_date < yahrzeit < on_date + 7:
+                    # the custom is to get an aliya the shabbat preceding the yahrzeit
+                    return True
         return False
 
-    def next_yahrzeit_shabbatot(self, reference_date=None):
-        if reference_date is None:
-            reference_date = HebrewDate.today()
-        yahrzeit_shabbatot = set()
-        for family_member in self.immediate_family_members:
-            if family_member.is_deceased:  # chas v'shalom
-                yahrzeit = next_anniversary_of(family_member.hebrew_date_of_death, reference_date)
-                if yahrzeit.weekday() == 7:
-                    # bo b'yom
-                    yahrzeit_shabbatot.add(yahrzeit)
-                else:
-                    # the custom is to get an aliya the shabbat preceding the yahrzeit
-                    yahrzeit_shabbat = yahrzeit.shabbos() - 7
-                    if yahrzeit_shabbat >= reference_date:
-                        yahrzeit_shabbatot.add(yahrzeit_shabbat)
-                    else:
-                        # we just passed the yahrzeit shabbat, but the yahrzeit itself is this week
-                        # use next year's yahrzeit shabbat
-                        next_yahrzeit = next_anniversary_of(family_member.hebrew_date_of_death, yahrzeit + 1)
-                        if next_yahrzeit.weekday() == 7:
-                            yahrzeit_shabbatot.add(next_yahrzeit)
-                        else:
-                            yahrzeit_shabbatot.add(next_yahrzeit.shabbos() - 7)
-        return sorted(yahrzeit_shabbatot)
+    def needs_birthday_aliya(self, on_date: HebrewDate):
+        birthday = next_anniversary_of(self.hebrew_date_of_birth, on_date)
+        if birthday == on_date:
+            # bo b'yom
+            return True
+        elif on_date.weekday() == 7 and on_date < birthday < on_date + 7:
+            # the custom is to get an aliya the shabbat preceding the birthday
+            return True
 
     @property
     def is_bar_mitzvah(self):
@@ -237,15 +225,20 @@ class MaleMember(Member):
     def can_get_aliya(self):
         return self.is_bar_mitzvah and not self.is_deceased and not self.cannot_get_aliya
 
-    def get_aliya_precedence(self, reference_date=None):
-        if reference_date is None:
-            reference_date = HebrewDate.today()
-        if self.is_yahrzeit_shabbat(reference_date):
+    def get_aliya_precedence(self, on_date: HebrewDate):
+        if not self.can_get_aliya:
+            return None
+
+        if self.needs_yahrzeit_aliya(on_date):
             return AliyaPrecedenceReason.YAHRZEIT
-        elif self.is_bar_mitzvah_parasha_shabbat(reference_date):
+        elif self.needs_birthday_aliya(on_date):
+            return AliyaPrecedenceReason.BIRTHDAY
+        elif self.is_bar_mitzvah_parasha_shabbat(on_date):
             return AliyaPrecedenceReason.BAR_MITZVAH_PARASHA
-        elif self.last_aliya_date is None or reference_date.to_pydate() - self.last_aliya_date > timedelta(days=90):
+        elif self.last_aliya_date is None or on_date.to_pydate() - self.last_aliya_date > timedelta(days=90):
             return AliyaPrecedenceReason.TIME_SINCE_LAST_ALIYA
+        else:
+            return None
 
     @property
     def is_married(self):
