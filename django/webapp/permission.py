@@ -15,6 +15,13 @@ def _check_request_for_synagogue(request, synagogue):
         return True
 
 
+class IsGetOrAuthenticated(permissions.IsAuthenticated):
+    def has_permission(self, request, view):
+        if request.method == 'GET':
+            return True
+        return super().has_permission(request, view)
+
+
 class SynagoguePermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         return _check_request_for_synagogue(request, obj)

@@ -8,12 +8,12 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from rest_framework import generics
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from webapp.models import Synagogue
-from webapp.permission import SynagoguePermission, AddUserPermissions, MakeAddMemberTokenPermissions
+from webapp.permission import SynagoguePermission, AddUserPermissions, MakeAddMemberTokenPermissions, \
+    IsGetOrAuthenticated
 from webapp.serializers import UserSerializer, SynagogueSerializer, LoginSerializer, MakeAddMemberTokenSerializer
 
 
@@ -28,8 +28,8 @@ class UserCreateAPIView(generics.CreateAPIView):
 class SynagogueListCreateView(generics.ListCreateAPIView):
     queryset = Synagogue.objects.all()
     serializer_class = SynagogueSerializer
-    # an authenticated user must be logged in to be put in the admins group
-    permission_classes = (IsAuthenticated,)
+    # an authenticated user must be logged in on creation to be put in the admins group
+    permission_classes = (IsGetOrAuthenticated,)
 
 
 class SynagogueDetailView(generics.RetrieveUpdateDestroyAPIView):
