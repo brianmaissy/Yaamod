@@ -3,7 +3,6 @@ from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db.transaction import atomic
-from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.views import View
 from rest_framework import generics
@@ -55,7 +54,7 @@ class LoginView(APIView):
 class LogoutView(View):
     def post(self, request):
         logout(request)
-        return HttpResponse()
+        return Response()
 
 
 class MakeAddMemberTokenView(APIView):
