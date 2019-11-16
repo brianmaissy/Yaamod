@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db.transaction import atomic
 from django.utils.decorators import method_decorator
-from django.views import View
 from rest_framework import generics
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
@@ -48,10 +47,12 @@ class LoginView(APIView):
         else:
             raise PermissionDenied()
 
-        return Response()
+        # return the synagogues that this user is admin in
+        synagogues = Synagogue.objects.filter(admins__in=user.groups.all())
+        return Response([{'id': synagogue.id} for synagogue in synagogues])
 
 
-class LogoutView(View):
+class LogoutView(APIView):
     def post(self, request):
         logout(request)
         return Response()
