@@ -1,6 +1,8 @@
 import React from 'react';
 import 'antd/dist/antd.css';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+
 
 import { Form, Icon, Input, Button, Checkbox, Layout, Card} from 'antd';
 import './Login.css'
@@ -14,13 +16,19 @@ class NormalLoginForm extends React.Component {
     this.props.form.validateFields((err, values) => {
       if (!err) {
         console.log('Received values of form: ', values);
+        // TODO: fix CORS thing
+        axios.post("http://192.168.1.20:8000/login", {
+          username: values.username,
+          password: values.password
+        }
+      ).then(response => {
+        console.log(response)
       }
-    });
-    fetch("api-auth").then(response => {
-      onUpdateToken(response.newToken)
-    })
-
+          // onUpdateToken(response.newToken)
+      )}}
+    )
   };
+
   render() {
     const { getFieldDecorator } = this.props.form;
     return (
@@ -32,7 +40,7 @@ class NormalLoginForm extends React.Component {
             })(
               <Input
                 prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                type='email'
+                type='text'
                 placeholder="Username"
               />,
             )}

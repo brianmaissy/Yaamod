@@ -1,5 +1,6 @@
 import React from 'react';
 import NavBar from './components/NavBar'
+import ShulList from './components/ShulList'
 import ManageRouter from './components/ManageRouter'
 import About from './components/About';
 import he_IL from 'antd/es/locale/he_IL';
@@ -12,7 +13,6 @@ import {
   Route,
   Redirect,
 } from 'react-router-dom';
-import { ConfigProvider } from 'antd';
 
 class App extends React.Component {
   constructor(props){
@@ -32,6 +32,7 @@ class App extends React.Component {
         <NavBar token={this.state.token} onUpdateToken={this.updateToken.bind(this)}/>
         <Switch>
           <Route path='/manage' component={ManageRouter} />
+          <Route path='/findPrayer' component={ShulList} />
           <Route path='/about' component={About} />
         </Switch>
       </Router>
