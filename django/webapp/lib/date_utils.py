@@ -1,8 +1,10 @@
 from datetime import date
+from itertools import chain
 from typing import Optional
 
-from pyluach.hebrewcal import Month, Year
 from pyluach.dates import HebrewDate
+from pyluach.hebrewcal import Month, Year
+from pyluach.parshios import parshatable
 
 
 def to_hebrew_date(gregorian_date: Optional[date], after_sunset: bool):
@@ -60,3 +62,13 @@ def next_anniversary_of(original_date, reference_date=None):
         # or years_ago + 1, because of the leap year edge cases
         next_anniversary = nth_anniversary_of(original_date, years_ago + 1)
     return next_anniversary
+
+
+def next_reading_of_parasha(parasha_number, reference_date=None, israel=True):
+    if reference_date is None:
+        reference_date = HebrewDate.today()
+    this_year_table = parshatable(reference_date.year, israel=israel)
+    next_year_table = parshatable(reference_date.year + 1, israel=israel)
+    for shabbat_date, parasha_numbers in chain(this_year_table.items(), next_year_table.items()):
+        if shabbat_date >= reference_date and parasha_numbers is not None and parasha_number in parasha_numbers:
+            return shabbat_date
