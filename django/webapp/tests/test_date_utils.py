@@ -2,8 +2,10 @@ from datetime import date
 from unittest import TestCase
 
 from pyluach.dates import HebrewDate
+from pyluach.hebrewcal import Year, holiday
 
-from webapp.lib.date_utils import to_hebrew_date, nth_anniversary_of, next_anniversary_of, next_reading_of_parasha
+from webapp.lib.date_utils import to_hebrew_date, nth_anniversary_of, next_anniversary_of, next_reading_of_parasha, \
+    make_torah_reading_occasions_table
 
 
 class TestHebrewDate(TestCase):
@@ -81,3 +83,34 @@ class TestNextReadingOfParasha(TestCase):
     def test_double_parasha(self):
         self.assertEquals(next_reading_of_parasha(21, HebrewDate(5780, 8, 1)),
                           next_reading_of_parasha(21, HebrewDate(5780, 8, 1)))
+
+
+class TestTorahReadingOccasions(TestCase):
+    def test_occasions(self):
+        for year in (5779, 5780):
+            for israel in (True, False):
+                number_of_shabbatot = 0
+                rosh_chodesh_months = []
+                holidays_count = 0
+                for day, occasion in make_torah_reading_occasions_table(year, israel).items():
+                    if holiday(day, israel):
+                        holidays_count += 1
+                    if day.weekday() == 7:
+                        self.assertEquals(occasion.shacharit_aliyot, 7)
+                        self.assertEquals(occasion.mincha_aliyot, 3)
+                        number_of_shabbatot += 1
+                    if day.day in (1, 30):
+                        if not holiday(day, israel) and day.weekday() != 7:
+                            self.assertEquals(occasion.shacharit_aliyot, 4)
+                            self.assertEquals(occasion.mincha_aliyot, 0)
+                        rosh_chodesh_months.append(day.month)
+
+                expected_number_of_shabbatot = 0
+                shabbat = HebrewDate(year, 7, 1).shabbos()
+                while shabbat.year == year:
+                    expected_number_of_shabbatot += 1
+                    shabbat += 7
+
+                self.assertEquals(number_of_shabbatot, expected_number_of_shabbatot)
+                self.assertEquals(len(set(rosh_chodesh_months)), 13 if Year(year).leap else 12)
+                self.assertEquals(holidays_count, 32 if israel else 35)
