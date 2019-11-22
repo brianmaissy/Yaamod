@@ -92,7 +92,7 @@ class TestTorahReadingOccasions(TestCase):
                 number_of_shabbatot = 0
                 rosh_chodesh_months = []
                 holidays_count = 0
-                for day, occasion in make_torah_reading_occasions_table(year, israel).items():
+                for day, occasion in make_torah_reading_occasions_table(year, israel, False).items():
                     if holiday(day, israel):
                         holidays_count += 1
                     if day.weekday() == 7:

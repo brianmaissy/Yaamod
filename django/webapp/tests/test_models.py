@@ -35,10 +35,18 @@ class MembersTestCase(TestCase):
 class TestSynagogue(MembersTestCase):
     def test_members(self):
         self.assertEquals(self.synagogue.person_set.count(), 7)
+
         self.assertEquals(self.synagogue.member_set.count(), 3)
         self.assertEquals(set(self.synagogue.member_set.all()), {self.daughter, self.son.member_ptr, self.wife})
         for member in self.synagogue.member_set.all():
             self.assertIsInstance(member, Member)
+
+        self.assertEquals(self.synagogue.male_member_set.count(), 1)
+        self.assertEquals(set(self.synagogue.male_member_set.all()), {self.son})
+        for member in self.synagogue.male_member_set.all():
+            self.assertIsInstance(member, MaleMember)
+
+        self.assertIn(HebrewDate(5780, 7, 1), self.synagogue.get_torah_reading_occasions_table(5780))
 
 
 class TestPerson(MembersTestCase):
@@ -161,22 +169,6 @@ class MaleMembersTestCase(TestCase):
             father=self.wife.father, mother=self.wife.mother, yichus=Yichus.COHEN, last_aliya_date=date(2019, 11, 1))
 
 
-class TestMaleMembersManager(MaleMembersTestCase):
-    def test_get_olim(self):
-        self.assertEquals(set(MaleMember.objects.all()), {self.reuven, self.shimon, self.brother_in_law, self.baby})
-        self.assertEquals(MaleMember.objects.get_olim(), {self.reuven, self.shimon, self.brother_in_law})
-
-    def test_cohanim(self):
-        self.assertEquals(set(MaleMember.cohanim.all()), {self.brother_in_law})
-
-    def test_leviim(self):
-        self.assertEquals(set(MaleMember.leviim.all()), {self.reuven, self.shimon, self.baby})
-        self.assertEquals(set(MaleMember.leviim.get_olim()), {self.reuven, self.shimon})
-
-    def test_haftarah_readers(self):
-        self.assertEquals(set(MaleMember.haftarah_readers.all()), {self.reuven})
-
-
 class TestAliyaPrecedence(MaleMembersTestCase):
     def test_immediate_family_members(self):
         self.assertEquals(self.father.immediate_family_members, {self.reuven.member, self.shimon.member})
@@ -232,24 +224,26 @@ class TestAliyaPrecedence(MaleMembersTestCase):
                           AliyaPrecedenceReason.BAR_MITZVAH_PARASHA)
         self.assertEquals(self.shimon.get_aliya_precedence(HebrewDate(5780, 10, 21)),
                           AliyaPrecedenceReason.BIRTHDAY)
-        self.assertEquals(self.shimon.get_aliya_precedence(HebrewDate(5780, 11, 1)),
-                          AliyaPrecedenceReason.TIME_SINCE_LAST_ALIYA)
+        self.assertIsNone(self.shimon.get_aliya_precedence(HebrewDate(5780, 11, 1)))
         self.assertEquals(self.shimon.get_aliya_precedence(HebrewDate(5780, 9, 2)), AliyaPrecedenceReason.YAHRZEIT)
         self.assertEquals(self.shimon.get_aliya_precedence(HebrewDate(5780, 9, 2)), AliyaPrecedenceReason.YAHRZEIT)
         self.assertIsNone(self.brother_in_law.get_aliya_precedence(HebrewDate(5780, 9, 2)))
 
     def test_suggested_olim(self):
-        self.assertEquals(MaleMember.objects.get_suggested_olim(HebrewDate(5780, 10, 21)),
-                          [(self.shimon, AliyaPrecedenceReason.BIRTHDAY),
-                           (self.reuven, AliyaPrecedenceReason.BAR_MITZVAH_PARASHA)])
-        self.assertEquals(MaleMember.objects.get_suggested_olim(HebrewDate(5780, 9, 2)),
-                          [(self.shimon, AliyaPrecedenceReason.YAHRZEIT),
-                           (self.reuven, AliyaPrecedenceReason.YAHRZEIT)])
-        self.assertEquals(MaleMember.objects.get_suggested_olim(HebrewDate(5780, 11, 15)),
-                          [(self.shimon, AliyaPrecedenceReason.TIME_SINCE_LAST_ALIYA),
-                           (self.brother_in_law, AliyaPrecedenceReason.TIME_SINCE_LAST_ALIYA)])
+        self.assertEquals(self.synagogue.get_olim(HebrewDate(5780, 10, 21)), [
+            (self.shimon, AliyaPrecedenceReason.BIRTHDAY),
+            (self.reuven, AliyaPrecedenceReason.BAR_MITZVAH_PARASHA),
+            (self.brother_in_law, None)
+        ])
 
-        self.assertEquals(MaleMember.cohanim.get_suggested_olim(HebrewDate(5780, 11, 15)),
-                          [(self.brother_in_law, AliyaPrecedenceReason.TIME_SINCE_LAST_ALIYA)])
-        self.assertEquals(MaleMember.leviim.get_suggested_olim(HebrewDate(5780, 11, 15)),
-                          [(self.shimon, AliyaPrecedenceReason.TIME_SINCE_LAST_ALIYA)])
+        self.assertEquals(self.synagogue.get_olim(HebrewDate(5780, 9, 2)), [
+            (self.shimon, AliyaPrecedenceReason.YAHRZEIT),
+            (self.reuven, AliyaPrecedenceReason.YAHRZEIT),
+            (self.brother_in_law, None)
+        ])
+
+        self.assertEquals(self.synagogue.get_olim(HebrewDate(5780, 11, 15)), [
+            (self.shimon, None),
+            (self.brother_in_law, None),
+            (self.reuven, None)
+        ])

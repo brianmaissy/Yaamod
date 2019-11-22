@@ -1,4 +1,5 @@
-from datetime import timedelta, date
+import math
+from datetime import date
 from typing import Tuple, Set, List
 
 from django.contrib.auth.models import Group, User
@@ -7,7 +8,7 @@ from django_enumfield import enum
 from pyluach.dates import HebrewDate
 from pyluach.parshios import PARSHIOS, getparsha
 
-from .lib.date_utils import nth_anniversary_of, to_hebrew_date, next_anniversary_of
+from .lib.date_utils import nth_anniversary_of, to_hebrew_date, next_anniversary_of, make_torah_reading_occasions_table
 
 
 class Yichus(enum.Enum):
@@ -21,17 +22,33 @@ class AliyaPrecedenceReason(enum.Enum):
     YAHRZEIT = 1
     BIRTHDAY = 2
     BAR_MITZVAH_PARASHA = 3
-    TIME_SINCE_LAST_ALIYA = 4
 
 
 class Synagogue(models.Model):
     name = models.TextField()
     admins = models.ForeignKey(Group, on_delete=models.CASCADE)
     member_creator = models.ForeignKey(User, on_delete=models.CASCADE)
+    in_israel = models.BooleanField(default=True)
+    in_jerusalem = models.BooleanField(default=False)
+
+    def get_torah_reading_occasions_table(self, year: int):
+        return make_torah_reading_occasions_table(year, self.in_israel, self.in_jerusalem)
+
+    def get_olim(self, on_date: HebrewDate) -> List[Tuple['MaleMember', AliyaPrecedenceReason]]:
+        suggested_olim: List[Tuple[MaleMember, AliyaPrecedenceReason]] = []
+        for male_member in self.male_member_set.all():
+            if male_member.can_get_aliya:
+                suggested_olim.append((male_member, male_member.get_aliya_precedence(on_date)))
+        return sorted(suggested_olim, key=lambda suggestion: (suggestion[1] or math.inf,
+                                                              suggestion[0].last_aliya_date or date.min))
 
     @property
     def member_set(self):
         return Member.objects.filter(synagogue=self)
+
+    @property
+    def male_member_set(self):
+        return MaleMember.objects.filter(synagogue=self)
 
     def __str__(self):
         return self.name
@@ -119,34 +136,6 @@ class Member(Person):
         return family_members
 
 
-class MaleMemberManager(models.Manager):
-    def get_olim(self):
-        return set(male_member for male_member in self.get_queryset().all() if male_member.can_get_aliya)
-
-    def get_suggested_olim(self, reference_date=None) -> List[Tuple['MaleMember', AliyaPrecedenceReason]]:
-        suggested_olim: List[Tuple[MaleMember, AliyaPrecedenceReason]] = []
-        for male_member in self.get_queryset().all():
-            precedence = male_member.get_aliya_precedence(reference_date)
-            if precedence:
-                suggested_olim.append((male_member, precedence))
-        return sorted(suggested_olim, key=lambda suggestion: (suggestion[1], suggestion[0].last_aliya_date or date.min))
-
-
-class CohanimManager(MaleMemberManager):
-    def get_queryset(self):
-        return super().get_queryset().filter(yichus=Yichus.COHEN)
-
-
-class LeviimManager(MaleMemberManager):
-    def get_queryset(self):
-        return super().get_queryset().filter(yichus=Yichus.LEVI)
-
-
-class HaftarahReadersManager(MaleMemberManager):
-    def get_queryset(self):
-        return super().get_queryset().filter(can_read_haftarah=True)
-
-
 class MaleMember(Member):
     yichus = enum.EnumField(Yichus, default=Yichus.ISRAEL)
     cannot_get_aliya = models.BooleanField(default=False)
@@ -159,11 +148,6 @@ class MaleMember(Member):
     # this is necessary because of a bug in Django.
     # see https://code.djangoproject.com/ticket/29998
     member_ptr = models.OneToOneField(Member, on_delete=models.CASCADE, parent_link=True, related_name='male_member')
-
-    objects = MaleMemberManager()
-    cohanim = CohanimManager()
-    leviim = LeviimManager()
-    haftarah_readers = HaftarahReadersManager()
 
     @property
     def yichus_name(self):
@@ -235,8 +219,6 @@ class MaleMember(Member):
             return AliyaPrecedenceReason.BIRTHDAY
         elif self.is_bar_mitzvah_parasha_shabbat(on_date):
             return AliyaPrecedenceReason.BAR_MITZVAH_PARASHA
-        elif self.last_aliya_date is None or on_date.to_pydate() - self.last_aliya_date > timedelta(days=90):
-            return AliyaPrecedenceReason.TIME_SINCE_LAST_ALIYA
         else:
             return None
 

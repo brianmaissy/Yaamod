@@ -88,8 +88,8 @@ class TorahReadingOccasion(NamedTuple):
 
 
 @lru_cache(50)
-def make_torah_reading_occasions_table(year: int, israel: bool = True, jerusalem: bool = False
-                                       ) -> Dict[HebrewDate, TorahReadingOccasion]:
+def make_torah_reading_occasions_table(year: int, israel: bool, jerusalem: bool) -> Dict[HebrewDate,
+                                                                                         TorahReadingOccasion]:
     # TODO: possible improvements:
     #  - add descriptions in hebrew
     #  - make the descriptions include more information (month for rosh chodesh, parasha for shabbat, and intersection
