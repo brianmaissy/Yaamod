@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from webapp.models import Synagogue
-from webapp.permission import SynagoguePermission, AddUserPermissions, MakeAddMemberTokenPermissions, \
+from webapp.permission import PostSynagoguePermission, AddUserPermissions, MakeAddMemberTokenPermissions, \
     IsGetOrAuthenticated
 from webapp.serializers import UserSerializer, SynagogueSerializer, LoginSerializer, MakeAddMemberTokenSerializer
 
@@ -33,7 +33,7 @@ class SynagogueListCreateView(generics.ListCreateAPIView):
 class SynagogueDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Synagogue.objects.all()
     serializer_class = SynagogueSerializer
-    permission_classes = (SynagoguePermission,)
+    permission_classes = (PostSynagoguePermission,)
 
 
 class LoginView(APIView):

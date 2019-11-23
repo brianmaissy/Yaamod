@@ -27,6 +27,13 @@ class SynagoguePermission(permissions.BasePermission):
         return _check_request_for_synagogue(request, obj)
 
 
+class PostSynagoguePermission(SynagoguePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method == 'GET':
+            return True
+        return super().has_object_permission(request, view, obj)
+
+
 class SerializerPermissions(permissions.BasePermission):
     @property
     @classmethod
