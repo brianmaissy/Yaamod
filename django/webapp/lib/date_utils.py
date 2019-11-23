@@ -9,7 +9,7 @@ from pyluach.hebrewcal import Month, Year, _adjust_postponed
 from pyluach.parshios import parshatable
 
 
-def to_hebrew_date(gregorian_date: Optional[date], after_sunset: bool):
+def to_hebrew_date(gregorian_date: Optional[date], after_sunset: bool) -> Optional[HebrewDate]:
     if gregorian_date is None:
         return None
     hebrew_date = HebrewDate.from_pydate(gregorian_date)
@@ -18,7 +18,7 @@ def to_hebrew_date(gregorian_date: Optional[date], after_sunset: bool):
     return hebrew_date
 
 
-def nth_anniversary_of(original_date, number_of_years):
+def nth_anniversary_of(original_date: HebrewDate, number_of_years: int) -> HebrewDate:
     original_year = Year(original_date.year)
     anniversary_year = Year(original_date.year + number_of_years)
     anniversary_month = None
@@ -52,7 +52,7 @@ def nth_anniversary_of(original_date, number_of_years):
                           original_date.day)
 
 
-def next_anniversary_of(original_date, reference_date=None):
+def next_anniversary_of(original_date: HebrewDate, reference_date: Optional[HebrewDate] = None) -> HebrewDate:
     if reference_date is None:
         reference_date = HebrewDate.today()
     if not reference_date > original_date:
@@ -66,7 +66,8 @@ def next_anniversary_of(original_date, reference_date=None):
     return next_anniversary
 
 
-def next_reading_of_parasha(parasha_number, reference_date=None, israel=True):
+def next_reading_of_parasha(parasha_number: int, reference_date: Optional[HebrewDate] = None,
+                            israel: bool = True) -> HebrewDate:
     if reference_date is None:
         reference_date = HebrewDate.today()
     this_year_table = parshatable(reference_date.year, israel=israel)

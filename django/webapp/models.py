@@ -1,14 +1,16 @@
 import math
 from datetime import date
-from typing import Tuple, Set, List
+from typing import Tuple, Set, List, Dict, Optional
 
 from django.contrib.auth.models import Group, User
 from django.db import models
+from django.db.models.query import QuerySet
 from django_enumfield import enum
 from pyluach.dates import HebrewDate
 from pyluach.parshios import PARSHIOS, getparsha
 
-from .lib.date_utils import nth_anniversary_of, to_hebrew_date, next_anniversary_of, make_torah_reading_occasions_table
+from .lib.date_utils import nth_anniversary_of, to_hebrew_date, next_anniversary_of, \
+    make_torah_reading_occasions_table, TorahReadingOccasion
 
 
 class Yichus(enum.Enum):
@@ -31,7 +33,7 @@ class Synagogue(models.Model):
     in_israel = models.BooleanField(default=True)
     in_jerusalem = models.BooleanField(default=False)
 
-    def get_torah_reading_occasions_table(self, year: int):
+    def get_torah_reading_occasions_table(self, year: int) -> Dict[HebrewDate, TorahReadingOccasion]:
         return make_torah_reading_occasions_table(year, self.in_israel, self.in_jerusalem)
 
     def get_olim(self, on_date: HebrewDate) -> List[Tuple['MaleMember', AliyaPrecedenceReason]]:
@@ -43,14 +45,14 @@ class Synagogue(models.Model):
                                                               suggestion[0].last_aliya_date or date.min))
 
     @property
-    def member_set(self):
+    def member_set(self) -> QuerySet:
         return Member.objects.filter(synagogue=self)
 
     @property
-    def male_member_set(self):
+    def male_member_set(self) -> QuerySet:
         return MaleMember.objects.filter(synagogue=self)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -64,22 +66,22 @@ class Person(models.Model):
         verbose_name_plural = 'people'
 
     @property
-    def is_deceased(self):
+    def is_deceased(self) -> bool:
         return self.date_of_death is not None
 
     @property
-    def hebrew_date_of_death(self):
+    def hebrew_date_of_death(self) -> HebrewDate:
         return to_hebrew_date(self.date_of_death, self.date_of_death_after_sunset)
 
     @property
-    def children(self):
+    def children(self) -> QuerySet:
         return self.children_of_father.all() | self.children_of_mother.all()
 
     @property
     def immediate_family_members(self) -> Set['Member']:
         return set(self.children.all())
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.formal_name
 
 
@@ -92,42 +94,42 @@ class Member(Person):
     mother = models.ForeignKey(Person, on_delete=models.PROTECT, related_name='children_of_mother')
 
     @property
-    def first_name(self):
+    def first_name(self) -> str:
         return self.manual_first_name or self.formal_name
 
     @property
-    def full_name(self):
+    def full_name(self) -> str:
         return '{} {}'.format(self.first_name, self.last_name)
 
     @property
-    def son_or_daughter(self):
+    def son_or_daughter(self) -> str:
         return 'בן' if self.is_male else 'בת'
 
     @property
-    def paternal_formal_name(self):
+    def paternal_formal_name(self) -> str:
         return '{} {} {}'.format(self.formal_name, self.son_or_daughter, self.father.formal_name)
 
     @property
-    def maternal_formal_name(self):
+    def maternal_formal_name(self) -> str:
         return '{} {} {}'.format(self.formal_name, self.son_or_daughter, self.mother.formal_name)
 
     @property
-    def hebrew_date_of_birth(self):
+    def hebrew_date_of_birth(self) -> HebrewDate:
         return to_hebrew_date(self.date_of_birth, self.date_of_birth_after_sunset)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.full_name
 
     @property
-    def is_male(self):
+    def is_male(self) -> bool:
         return hasattr(self, 'male_member')
 
     @property
-    def is_married_woman(self):
+    def is_married_woman(self) -> bool:
         return hasattr(self, 'husband')
 
     @property
-    def immediate_family_members(self):
+    def immediate_family_members(self) -> Set['Member']:
         family_members = super().immediate_family_members
         family_members.update((self.father, self.mother), self.father.children.all(), self.mother.children.all())
         if self.is_married_woman:
@@ -150,37 +152,36 @@ class MaleMember(Member):
     member_ptr = models.OneToOneField(Member, on_delete=models.CASCADE, parent_link=True, related_name='male_member')
 
     @property
-    def yichus_name(self):
+    def yichus_name(self) -> 'str':
         return Yichus.label(self.yichus).capitalize()
 
     @property
-    def bar_mitzvah_parasha_name(self):
+    def bar_mitzvah_parasha_name(self) -> Optional[str]:
         if self.bar_mitzvah_parasha is None:
             return None
         else:
             return PARSHIOS[self.bar_mitzvah_parasha]
 
     @property
-    def bar_mitzvah_date(self):
+    def bar_mitzvah_date(self) -> HebrewDate:
         return nth_anniversary_of(self.hebrew_date_of_birth, 13)
 
-    def is_bar_mitzvah_parasha_shabbat(self, on_date: HebrewDate):
+    def is_bar_mitzvah_parasha_shabbat(self, on_date: HebrewDate) -> bool:
         if self.bar_mitzvah_parasha is None:
-            # we don't know when it is
-            return None
+            return False
         if on_date.weekday() != 7:
             return False
         parshiot = getparsha(on_date, israel=True)
         return parshiot is not None and self.bar_mitzvah_parasha in parshiot
 
     @property
-    def immediate_family_members(self):
+    def immediate_family_members(self) -> Set[Member]:
         family_members = super().immediate_family_members
         if self.is_married:
             family_members.add(self.wife)
         return family_members
 
-    def needs_yahrzeit_aliya(self, on_date: HebrewDate):
+    def needs_yahrzeit_aliya(self, on_date: HebrewDate) -> bool:
         for family_member in self.immediate_family_members:
             if family_member.is_deceased:  # chas v'shalom
                 yahrzeit = next_anniversary_of(family_member.hebrew_date_of_death, on_date)
@@ -192,7 +193,7 @@ class MaleMember(Member):
                     return True
         return False
 
-    def needs_birthday_aliya(self, on_date: HebrewDate):
+    def needs_birthday_aliya(self, on_date: HebrewDate) -> bool:
         birthday = next_anniversary_of(self.hebrew_date_of_birth, on_date)
         if birthday == on_date:
             # bo b'yom
@@ -200,16 +201,18 @@ class MaleMember(Member):
         elif on_date.weekday() == 7 and on_date < birthday < on_date + 7:
             # the custom is to get an aliya the shabbat preceding the birthday
             return True
+        else:
+            return False
 
     @property
-    def is_bar_mitzvah(self):
+    def is_bar_mitzvah(self) -> bool:
         return HebrewDate.today() >= self.bar_mitzvah_date
 
     @property
-    def can_get_aliya(self):
+    def can_get_aliya(self) -> bool:
         return self.is_bar_mitzvah and not self.is_deceased and not self.cannot_get_aliya
 
-    def get_aliya_precedence(self, on_date: HebrewDate):
+    def get_aliya_precedence(self, on_date: HebrewDate) -> Optional[int]:
         if not self.can_get_aliya:
             return None
 
@@ -223,5 +226,5 @@ class MaleMember(Member):
             return None
 
     @property
-    def is_married(self):
+    def is_married(self) -> bool:
         return self.wife is not None
