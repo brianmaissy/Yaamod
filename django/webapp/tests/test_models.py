@@ -1,11 +1,12 @@
 from datetime import date
 
 from django.contrib.auth.models import Group, User
+from django.db import IntegrityError
 from django.test import TestCase
 from pyluach.dates import HebrewDate
 
 from webapp.lib.date_utils import nth_anniversary_of, next_anniversary_of
-from webapp.models import Synagogue, Person, Member, MaleMember, Yichus, AliyaPrecedenceReason
+from webapp.models import Synagogue, Person, Member, MaleMember, Yichus, AliyaPrecedenceReason, ScheduledAliya
 
 
 def make_synagogue():
@@ -143,6 +144,43 @@ class TestMaleMember(MembersTestCase):
         self.assertTrue(self.wife.is_married_woman)
 
 
+class TestScheduledAliya(MembersTestCase):
+    def test_scheduled_aliya(self):
+        scheduled_aliya = ScheduledAliya.objects.create(date=date(2019, 11, 23), aliya_number=1, oleh=self.son)
+        # default value
+        self.assertFalse(scheduled_aliya.confirmed)
+        # relationships
+        self.assertEquals(scheduled_aliya.oleh, self.son)
+        self.assertEquals(list(self.son.scheduled_aliyot.all()), [scheduled_aliya])
+        # properties
+        self.assertEquals(scheduled_aliya.hebrew_date, HebrewDate(5780, 8, 25))
+
+    def test_null_date(self):
+        with self.assertRaises(IntegrityError):
+            ScheduledAliya.objects.create(date=None, aliya_number=1, oleh=self.son)
+
+    def test_null_aliya_number(self):
+        with self.assertRaises(IntegrityError):
+            ScheduledAliya.objects.create(date=date(2019, 11, 23), aliya_number=None, oleh=self.son)
+
+    def test_null_oleh(self):
+        with self.assertRaises(IntegrityError):
+            ScheduledAliya.objects.create(date=date(2019, 11, 23), aliya_number=1, oleh=None)
+
+    def test_unique_constraint(self):
+        ScheduledAliya.objects.create(date=date(2019, 11, 23), aliya_number=1, oleh=self.son)
+        with self.assertRaises(IntegrityError):
+            ScheduledAliya.objects.create(date=date(2019, 11, 23), aliya_number=1, oleh=self.son)
+
+    def test_last_aliya(self):
+        self.assertEquals(self.son.last_aliya_date, None)
+        scheduled_aliya = ScheduledAliya.objects.create(date=date(2019, 11, 23), aliya_number=1, oleh=self.son)
+        self.assertEquals(self.son.last_aliya_date, None)
+        scheduled_aliya.confirmed = True
+        scheduled_aliya.save()
+        self.assertEquals(self.son.last_aliya_date, HebrewDate(5780, 8, 25))
+
+
 class MaleMembersTestCase(TestCase):
     def setUp(self):
         self.synagogue = make_synagogue()
@@ -152,8 +190,8 @@ class MaleMembersTestCase(TestCase):
                                             date_of_death=date(2017, 3, 3))
         self.reuven = MaleMember.objects.create(
             formal_name='Reuven', synagogue=self.synagogue, last_name='Levi', date_of_birth=date(2000, 12, 15),
-            father=self.father, mother=self.mother, yichus=Yichus.LEVI, bar_mitzvah_parasha=12,
-            last_aliya_date=date(2019, 12, 1), can_read_haftarah=True)
+            father=self.father, mother=self.mother, yichus=Yichus.LEVI, bar_mitzvah_parasha=12, can_read_haftarah=True)
+        ScheduledAliya.objects.create(date=date(2019, 12, 7), aliya_number=1, oleh=self.reuven, confirmed=True)
         self.wife = Member.objects.create(
             formal_name='Rivkah', synagogue=self.synagogue, last_name='Levi', date_of_birth=date(2000, 1, 1),
             father=Person.objects.create(formal_name='Father in Law', synagogue=self.synagogue),
@@ -166,7 +204,8 @@ class MaleMembersTestCase(TestCase):
             father=self.shimon, mother=self.wife, yichus=Yichus.LEVI)
         self.brother_in_law = MaleMember.objects.create(
             formal_name='Moshe', synagogue=self.synagogue, last_name='Cohen', date_of_birth=date(2000, 2, 1),
-            father=self.wife.father, mother=self.wife.mother, yichus=Yichus.COHEN, last_aliya_date=date(2019, 11, 1))
+            father=self.wife.father, mother=self.wife.mother, yichus=Yichus.COHEN)
+        ScheduledAliya.objects.create(date=date(2019, 11, 2), aliya_number=1, oleh=self.reuven, confirmed=True)
 
 
 class TestAliyaPrecedence(MaleMembersTestCase):

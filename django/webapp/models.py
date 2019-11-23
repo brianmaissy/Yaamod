@@ -1,9 +1,10 @@
 import math
-from datetime import date
 from typing import Tuple, Set, List, Dict, Optional
 
 from django.contrib.auth.models import Group, User
+from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models import UniqueConstraint
 from django.db.models.query import QuerySet
 from django_enumfield import enum
 from pyluach.dates import HebrewDate
@@ -42,7 +43,7 @@ class Synagogue(models.Model):
             if male_member.can_get_aliya:
                 suggested_olim.append((male_member, male_member.get_aliya_precedence(on_date)))
         return sorted(suggested_olim, key=lambda suggestion: (suggestion[1] or math.inf,
-                                                              suggestion[0].last_aliya_date or date.min))
+                                                              suggestion[0].last_aliya_date or HebrewDate(1, 1, 1)))
 
     @property
     def member_set(self) -> QuerySet:
@@ -145,7 +146,6 @@ class MaleMember(Member):
     can_read_torah = models.BooleanField(default=False)
     can_read_haftarah = models.BooleanField(default=False)
     bar_mitzvah_parasha = models.IntegerField(null=True, blank=True, choices=enumerate(PARSHIOS))
-    last_aliya_date = models.DateField(null=True, blank=True)
     wife = models.OneToOneField(Member, on_delete=models.CASCADE, null=True, blank=True, related_name='husband')
     # this is necessary because of a bug in Django.
     # see https://code.djangoproject.com/ticket/29998
@@ -154,6 +154,13 @@ class MaleMember(Member):
     @property
     def yichus_name(self) -> 'str':
         return Yichus.label(self.yichus).capitalize()
+
+    @property
+    def last_aliya_date(self) -> Optional[HebrewDate]:
+        try:
+            return self.scheduled_aliyot.filter(confirmed=True).latest('date').hebrew_date
+        except ScheduledAliya.DoesNotExist:
+            return None
 
     @property
     def bar_mitzvah_parasha_name(self) -> Optional[str]:
@@ -228,3 +235,19 @@ class MaleMember(Member):
     @property
     def is_married(self) -> bool:
         return self.wife is not None
+
+
+class ScheduledAliya(models.Model):
+    date = models.DateField()
+    aliya_number = models.SmallIntegerField(validators=[MinValueValidator(1)])
+    oleh = models.ForeignKey(MaleMember, on_delete=models.CASCADE, related_name='scheduled_aliyot')
+    confirmed = models.BooleanField(default=False)
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(fields=['date', 'aliya_number'], name='unique_scheduled_aliya')
+        ]
+
+    @property
+    def hebrew_date(self) -> HebrewDate:
+        return to_hebrew_date(self.date, False)
