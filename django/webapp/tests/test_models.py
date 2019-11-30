@@ -148,7 +148,7 @@ class TestScheduledAliya(MembersTestCase):
     def test_scheduled_aliya(self):
         scheduled_aliya = ScheduledAliya.objects.create(date=date(2019, 11, 23), aliya_number=1, oleh=self.son)
         # default value
-        self.assertFalse(scheduled_aliya.confirmed)
+        self.assertFalse(scheduled_aliya.mincha)
         # relationships
         self.assertEquals(scheduled_aliya.oleh, self.son)
         self.assertEquals(list(self.son.scheduled_aliyot.all()), [scheduled_aliya])
@@ -172,14 +172,6 @@ class TestScheduledAliya(MembersTestCase):
         with self.assertRaises(IntegrityError):
             ScheduledAliya.objects.create(date=date(2019, 11, 23), aliya_number=1, oleh=self.son)
 
-    def test_last_aliya(self):
-        self.assertEquals(self.son.last_aliya_date, None)
-        scheduled_aliya = ScheduledAliya.objects.create(date=date(2019, 11, 23), aliya_number=1, oleh=self.son)
-        self.assertEquals(self.son.last_aliya_date, None)
-        scheduled_aliya.confirmed = True
-        scheduled_aliya.save()
-        self.assertEquals(self.son.last_aliya_date, HebrewDate(5780, 8, 25))
-
 
 class MaleMembersTestCase(TestCase):
     def setUp(self):
@@ -191,7 +183,7 @@ class MaleMembersTestCase(TestCase):
         self.reuven = MaleMember.objects.create(
             formal_name='Reuven', synagogue=self.synagogue, last_name='Levi', date_of_birth=date(2000, 12, 15),
             father=self.father, mother=self.mother, yichus=Yichus.LEVI, bar_mitzvah_parasha=12, can_read_haftarah=True)
-        ScheduledAliya.objects.create(date=date(2019, 12, 7), aliya_number=1, oleh=self.reuven, confirmed=True)
+        ScheduledAliya.objects.create(date=date(2019, 12, 7), aliya_number=1, oleh=self.reuven)
         self.wife = Member.objects.create(
             formal_name='Rivkah', synagogue=self.synagogue, last_name='Levi', date_of_birth=date(2000, 1, 1),
             father=Person.objects.create(formal_name='Father in Law', synagogue=self.synagogue),
@@ -205,7 +197,7 @@ class MaleMembersTestCase(TestCase):
         self.brother_in_law = MaleMember.objects.create(
             formal_name='Moshe', synagogue=self.synagogue, last_name='Cohen', date_of_birth=date(2000, 2, 1),
             father=self.wife.father, mother=self.wife.mother, yichus=Yichus.COHEN)
-        ScheduledAliya.objects.create(date=date(2019, 11, 2), aliya_number=1, oleh=self.reuven, confirmed=True)
+        ScheduledAliya.objects.create(date=date(2019, 11, 2), aliya_number=1, oleh=self.brother_in_law)
 
 
 class TestAliyaPrecedence(MaleMembersTestCase):
@@ -281,8 +273,16 @@ class TestAliyaPrecedence(MaleMembersTestCase):
             (self.brother_in_law, None)
         ])
 
-        self.assertEquals(self.synagogue.get_olim(HebrewDate(5780, 11, 15)), [
+        olim = self.synagogue.get_olim(HebrewDate(5780, 11, 15))
+        self.assertEquals(olim, [
             (self.shimon, None),
             (self.brother_in_law, None),
             (self.reuven, None)
         ])
+        # check last aliya dates
+        assert olim[0][0].last_aliya_date is None
+        assert olim[0][0].last_aliya_hebrew_date is None
+        assert olim[1][0].last_aliya_date == date(2019, 11, 2)
+        assert olim[1][0].last_aliya_hebrew_date == HebrewDate(5780, 8, 4)
+        assert olim[2][0].last_aliya_date == date(2019, 12, 7)
+        assert olim[2][0].last_aliya_hebrew_date == HebrewDate(5780, 9, 9)
