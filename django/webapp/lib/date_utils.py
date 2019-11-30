@@ -91,13 +91,6 @@ class TorahReadingOccasion(NamedTuple):
 @lru_cache(50)
 def make_torah_reading_occasions_table(year: int, israel: bool, jerusalem: bool) -> Dict[HebrewDate,
                                                                                          TorahReadingOccasion]:
-    # TODO: possible improvements:
-    #  - add descriptions in hebrew
-    #  - make the descriptions include more information (month for rosh chodesh, parasha for shabbat, and intersection
-    #        of multiple occasions, like shabbat rosh chodesh, shabbat purim, rosh chodesh chanukah, four parshiot)
-    #  - add descriptions of the aliyot (especially maftir)
-    #  - include days with haftarah but no maftir
-    #  - include mondays and thursdays
     table = {}
 
     # holidays
