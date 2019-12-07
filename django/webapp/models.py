@@ -1,10 +1,11 @@
 import math
+from datetime import date
 from typing import Tuple, Set, List, Dict, Optional
 
 from django.contrib.auth.models import Group, User
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models import UniqueConstraint
+from django.db.models import UniqueConstraint, Max
 from django.db.models.query import QuerySet
 from django_enumfield import enum
 from pyluach.dates import HebrewDate
@@ -27,6 +28,10 @@ class AliyaPrecedenceReason(enum.Enum):
     BAR_MITZVAH_PARASHA = 3
 
 
+class CannotGetAliya(Exception):
+    pass
+
+
 class Synagogue(models.Model):
     name = models.TextField()
     admins = models.ForeignKey(Group, on_delete=models.CASCADE)
@@ -39,11 +44,13 @@ class Synagogue(models.Model):
 
     def get_olim(self, on_date: HebrewDate) -> List[Tuple['MaleMember', AliyaPrecedenceReason]]:
         suggested_olim: List[Tuple[MaleMember, AliyaPrecedenceReason]] = []
-        for male_member in self.male_member_set.all():
+        for male_member in self.male_member_set.annotate(last_aliya_date=Max('scheduled_aliyot__date')).all():
             if male_member.can_get_aliya:
                 suggested_olim.append((male_member, male_member.get_aliya_precedence(on_date)))
+                male_member.last_aliya_hebrew_date = (HebrewDate.from_pydate(male_member.last_aliya_date)
+                                                      if male_member.last_aliya_date is not None else None)
         return sorted(suggested_olim, key=lambda suggestion: (suggestion[1] or math.inf,
-                                                              suggestion[0].last_aliya_date or HebrewDate(1, 1, 1)))
+                                                              suggestion[0].last_aliya_date or date.min))
 
     @property
     def member_set(self) -> QuerySet:
@@ -156,13 +163,6 @@ class MaleMember(Member):
         return Yichus.label(self.yichus).capitalize()
 
     @property
-    def last_aliya_date(self) -> Optional[HebrewDate]:
-        try:
-            return self.scheduled_aliyot.filter(confirmed=True).latest('date').hebrew_date
-        except ScheduledAliya.DoesNotExist:
-            return None
-
-    @property
     def bar_mitzvah_parasha_name(self) -> Optional[str]:
         if self.bar_mitzvah_parasha is None:
             return None
@@ -221,7 +221,7 @@ class MaleMember(Member):
 
     def get_aliya_precedence(self, on_date: HebrewDate) -> Optional[int]:
         if not self.can_get_aliya:
-            return None
+            raise CannotGetAliya()
 
         if self.needs_yahrzeit_aliya(on_date):
             return AliyaPrecedenceReason.YAHRZEIT
@@ -239,13 +239,13 @@ class MaleMember(Member):
 
 class ScheduledAliya(models.Model):
     date = models.DateField()
+    mincha = models.BooleanField(default=False)
     aliya_number = models.SmallIntegerField(validators=[MinValueValidator(1)])
     oleh = models.ForeignKey(MaleMember, on_delete=models.CASCADE, related_name='scheduled_aliyot')
-    confirmed = models.BooleanField(default=False)
 
     class Meta:
         constraints = [
-            UniqueConstraint(fields=['date', 'aliya_number'], name='unique_scheduled_aliya')
+            UniqueConstraint(fields=['date', 'mincha', 'aliya_number'], name='unique_scheduled_aliya')
         ]
 
     @property
