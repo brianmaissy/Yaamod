@@ -7,4 +7,5 @@ install:
 # command to run tests
 script:
   - mypy
+  - flake8
   - cd django && EMAIL_PASSWORD=""  python manage.py test; cd ..
