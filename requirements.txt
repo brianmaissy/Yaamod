@@ -4,3 +4,4 @@ pyluach~=1.0.1
 djangorestframework~=3.10.3
 django-rest-passwordreset~=1.0.0
 mypy==0.761
+flake8==3.7.9
