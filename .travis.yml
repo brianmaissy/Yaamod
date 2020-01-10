@@ -7,3 +7,4 @@ install:
 # command to run tests
 script:
   - cd django && EMAIL_PASSWORD=""  python manage.py test
+  - mypy
