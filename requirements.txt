@@ -3,3 +3,4 @@ django-enumfield~=1.5
 pyluach~=1.0.1
 djangorestframework~=3.10.3
 django-rest-passwordreset~=1.0.0
+mypy==0.761
