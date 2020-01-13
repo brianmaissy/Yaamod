@@ -4,12 +4,7 @@ import { Link, withRouter } from 'react-router-dom';
 import 'antd/dist/antd.css';
 
 
-const { SubMenu } = Menu;
-
 class NavBar extends React.Component {
-  constructor(props){
-    super(props);
-  }
 
   urlToIndex = {
     "manage": "manage",

@@ -4,14 +4,13 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 
-import { Form, Icon, Input, Button, Checkbox, Layout, Card} from 'antd';
+import { Form, Icon, Input, Button, Card} from 'antd';
 import './Login.css'
 
-const { Content } = Layout;
+// const { Content } = Layout;
 
 class NormalLoginForm extends React.Component {
   handleSubmit = e => {
-    const { onUpdateToken } = this.props;
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
@@ -58,7 +57,8 @@ class NormalLoginForm extends React.Component {
           </Form.Item>
           <Form.Item>
 
-            <a className="login-form-forgot" href="">
+						{/* #0 is for empty link */}
+            <a className="login-form-forgot" href="#0">
               Forgot password?
             </a>
             <Button type="primary" htmlType="submit" className="login-form-button" icon="login">
