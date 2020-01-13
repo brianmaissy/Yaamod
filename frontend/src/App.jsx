@@ -2,7 +2,7 @@ import React from 'react';
 import NavBar from './components/NavBar'
 import ShulList from './components/ShulList'
 import ManageRouter from './components/ManageRouter'
-import About from './components/About';
+// import About from './components/About';
 import he_IL from 'antd/es/locale/he_IL';
 import { ConfigProvider } from 'antd';
 
@@ -12,6 +12,7 @@ import {
   Switch,
   Route,
 } from 'react-router-dom';
+import MembersTable from './components/MembersTable';
 
 class App extends React.Component {
   constructor(props){
@@ -32,7 +33,7 @@ class App extends React.Component {
         <Switch>
           <Route path='/manage' component={ManageRouter} />
           <Route path='/findPrayer' component={ShulList} />
-          <Route path='/about' component={About} />
+          <Route path='/about' component={MembersTable} />
         </Switch>
       </Router>
     </ConfigProvider>
