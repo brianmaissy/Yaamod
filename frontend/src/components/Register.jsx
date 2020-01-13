@@ -3,15 +3,8 @@ import React from 'react';
 import {
   Form,
   Input,
-  Tooltip,
-  Icon,
-  Cascader,
-  Select,
-  Row,
-  Col,
   Checkbox,
   Button,
-  AutoComplete,
 } from 'antd';
 
 
@@ -54,7 +47,6 @@ class RegistrationForm extends React.Component {
 
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { autoCompleteResult } = this.state;
 
     const formItemLayout = {
       labelCol: {
@@ -132,7 +124,8 @@ class RegistrationForm extends React.Component {
             valuePropName: 'checked',
           })(
             <Checkbox>
-              I have read the <a href="">agreement</a>
+							{/* #0 is for empty link */}
+              I have read the <a href="#0">agreement</a>
             </Checkbox>,
           )}
         </Form.Item>
