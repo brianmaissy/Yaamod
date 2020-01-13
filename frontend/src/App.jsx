@@ -3,7 +3,7 @@ import NavBar from './components/NavBar'
 import ShulList from './components/ShulList'
 import ManageRouter from './components/ManageRouter'
 import About from './components/About';
-import he_IL from 'antd/es/locale/he_IL';
+import he_IL from 'antd/lib/locale/he_IL';
 import { ConfigProvider } from 'antd';
 
 
