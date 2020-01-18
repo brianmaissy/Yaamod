@@ -779,7 +779,7 @@
       "is_staff": true,
       "is_active": true,
       "date_joined": "2020-01-18T19:43:11.271Z",
-      "groups": [],
+      "groups": [1],
       "user_permissions": []
     }
   },

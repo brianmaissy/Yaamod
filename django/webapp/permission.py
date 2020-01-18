@@ -3,6 +3,7 @@ import abc
 from django.contrib.auth.models import Group
 from rest_framework import permissions
 
+from webapp.models import Synagogue
 from webapp.serializers import UserSerializer, MakeAddMemberTokenSerializer
 
 
@@ -13,6 +14,14 @@ def _check_request_for_synagogue(request, synagogue):
         return False
     else:
         return True
+
+
+def _check_request_from_kwargs(request, view):
+    synagogue_pk = view.kwargs['synagogue_pk']
+    synagogue = Synagogue.objects.get(pk=synagogue_pk)
+    if 'synagogue' in request.data and int(request.data['synagogue']) != synagogue_pk:
+        return False
+    return _check_request_for_synagogue(request, synagogue)
 
 
 class IsGetOrAuthenticated(permissions.IsAuthenticated):
@@ -34,7 +43,7 @@ class PostSynagoguePermission(SynagoguePermission):
         return super().has_object_permission(request, view, obj)
 
 
-class SerializerPermissions(permissions.BasePermission):
+class GetSynagogueFromSerializerPermissions(permissions.BasePermission):
     @property
     @classmethod
     @abc.abstractmethod
@@ -49,9 +58,14 @@ class SerializerPermissions(permissions.BasePermission):
         return _check_request_for_synagogue(request, serializer.get_synagogue())
 
 
-class AddUserPermissions(SerializerPermissions):
+class GetSynagogueFromKwargsPermissions(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return _check_request_from_kwargs(request, view)
+
+
+class AddUserPermissions(GetSynagogueFromSerializerPermissions):
     serializer = UserSerializer
 
 
-class MakeAddMemberTokenPermissions(SerializerPermissions):
+class MakeAddMemberTokenPermissions(GetSynagogueFromSerializerPermissions):
     serializer = MakeAddMemberTokenSerializer
