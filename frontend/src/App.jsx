@@ -2,8 +2,8 @@ import React from 'react';
 import NavBar from './components/NavBar'
 import ShulList from './components/ShulList'
 import ManageRouter from './components/ManageRouter'
-import About from './components/About';
-import he_IL from 'antd/lib/locale/he_IL';
+// import About from './components/About';
+import he_IL from 'antd/es/locale/he_IL';
 import { ConfigProvider } from 'antd';
 
 
@@ -12,6 +12,8 @@ import {
   Switch,
   Route,
 } from 'react-router-dom';
+import RTL from './RTL';
+import SynagoguePage from './pages/SynagoguePage';
 
 class App extends React.Component {
   constructor(props){
@@ -26,16 +28,18 @@ class App extends React.Component {
   }
   render() {
     return (
-    <ConfigProvider locale={he_IL}>
-      <Router>
-        <NavBar token={this.state.token} onUpdateToken={this.updateToken.bind(this)}/>
-        <Switch>
-          <Route path='/manage' component={ManageRouter} />
-          <Route path='/findPrayer' component={ShulList} />
-          <Route path='/about' component={About} />
-        </Switch>
-      </Router>
-    </ConfigProvider>
+			<RTL>
+				<ConfigProvider locale={he_IL} direction='rtl'>
+					<Router>
+						<NavBar token={this.state.token} onUpdateToken={this.updateToken.bind(this)}/>
+						<Switch>
+							<Route path='/manage' component={ManageRouter} />
+							<Route path='/findPrayer' component={ShulList} />
+							<Route path='/about' component={SynagoguePage} />
+						</Switch>
+					</Router>
+				</ConfigProvider>
+			</RTL>
     );
   }
 }
