@@ -1,6 +1,7 @@
 import React from 'react';
 import { Table, TableRow, TableCell, TableHead, TableBody } from '@material-ui/core'
 import MemberRow from './MemberRow';
+import _ from 'lodash';
 
 const mockData = [
 		{
