@@ -12,8 +12,8 @@ import {
   Switch,
   Route,
 } from 'react-router-dom';
-import MembersTable from './components/MembersTable';
 import RTL from './RTL';
+import SynagoguePage from './pages/SynagoguePage';
 
 class App extends React.Component {
   constructor(props){
@@ -35,7 +35,7 @@ class App extends React.Component {
 						<Switch>
 							<Route path='/manage' component={ManageRouter} />
 							<Route path='/findPrayer' component={ShulList} />
-							<Route path='/about' component={MembersTable} />
+							<Route path='/about' component={SynagoguePage} />
 						</Switch>
 					</Router>
 				</ConfigProvider>
