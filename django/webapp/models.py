@@ -16,7 +16,7 @@ from .lib.date_utils import nth_anniversary_of, to_hebrew_date, next_anniversary
 class Gender(enum.Enum):
     MALE = 1
     FEMALE = 2
-    
+
 
 class Yichus(enum.Enum):
     COHEN = 1
@@ -279,29 +279,29 @@ class Person(models.Model):
             return None
 
     @property
-    def gender_name(self):
+    def gender_name(self) -> str:
         return Gender.label(self.gender).capitalize()
 
-    def _get_field_as_json(self, field):
+    def _get_field_as_json(self, field: str) -> Optional[Dict]:
         value = getattr(self, field)
         if value is None:
             return None
         return {'id': value.pk, 'name': value.full_name}
 
     @property
-    def father_json(self):
+    def father_json(self) -> Optional[Dict]:
         return self._get_field_as_json('father')
 
     @property
-    def mother_json(self):
+    def mother_json(self) -> Optional[Dict]:
         return self._get_field_as_json('mother')
 
     @property
-    def wife_json(self):
+    def wife_json(self) -> Optional[Dict]:
         return self._get_field_as_json('wife')
 
     @property
-    def num_of_children(self):
+    def num_of_children(self) -> int:
         return len(self.children)
 
 
