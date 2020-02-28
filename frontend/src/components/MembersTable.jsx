@@ -1,63 +1,60 @@
 import React from 'react';
-import { Table, Divider, Tag } from 'antd';
-const { Column, ColumnGroup } = Table;
+import { Table, TableRow, TableCell, TableHead, TableBody } from '@material-ui/core'
+import MemberRow from './MemberRow';
 
-const data = [
-  {
-    key: '1',
-    name: 'John Brown',
-    age: 32,
-    address: 'New York No. 1 Lake Park',
-    tags: ['nice', 'developer'],
-  },
-  {
-    key: '2',
-    name: 'Jim Green',
-    age: 42,
-    address: 'London No. 1 Lake Park',
-    tags: ['loser'],
-  },
-  {
-    key: '3',
-    name: 'Joe Black',
-    age: 32,
-    address: 'Sidney No. 1 Lake Park',
-    tags: ['cool', 'teacher'],
-  },
+const mockData = [
+		{
+			id: 1,
+			"first_name": "Reuven",
+			"last_name": "Levi",
+			"gender_name": "Male",
+			"paternal_name": "Reuven בן Dad",
+			"maternal_name": "Reuven בן Mom",
+			"yichus_name": "Levi",
+			"father_json": {
+					"id": 1,
+					"name": "Dad"
+			},
+			"mother_json": {
+					"id": 2,
+					"name": "Mom"
+			},
+			"wife_json": {
+					"id": 7,
+					"name": "Rivkah Levi"
+			},
+			"num_of_children": 1
+	}
 ];
+
+const data = _.map(_.range(0, 10), (eln, i) => ({...mockData[0], id: i}));
 
 export default class MembersTable extends React.Component {
 	render() {
 		return (
-			<Table dataSource={data}>
-				<Column title="*" dataIndex="action"   />
-				<Column title="שם פרטי" dataIndex="firstName"   />
-				<Column title="שם משפחה" dataIndex="lastName"   />
-				<Column title="מין" dataIndex="age"   />
-				<Column title="שם אב" dataIndex="address"   />
-				<Column title="שם אם" dataIndex="address2"   />
-				<Column title="שם עליה לתורה" dataIndex="addres3s"   />
-				<Column title="תאריך לידה" dataIndex="addre4ss"   />
-				<Column title="יחוס" dataIndex="addre5ss"   />
-				<Column title="פרשת בר מצווה" dataIndex="ad5dress"   />
-				<Column title="תאריך עלייה אחרונה" dataIndex="6address"   />
-				<Column title="שם אישה/בעל" dataIndex="ad4dress"   />
-				<Column title="מספר ילדים" dataIndex="addr3ess"   />
-			{/* <Column
-				title="Tags"
-				dataIndex="tags"
-				key="tags"
-				render={tags => (
-					<span>
-						{tags.map(tag => (
-							<Tag color="blue" key={tag}>
-								{tag}
-							</Tag>
-						))}
-					</span>
-				)}
-			/> */}
-		</Table>
-		)
+			<Table>
+				<TableHead>
+					<TableRow>
+						<TableCell>שם פרטי</TableCell>
+						<TableCell>שם משפחה</TableCell>
+						<TableCell>מין</TableCell>
+						<TableCell>שם אב</TableCell>
+						<TableCell>שם אם</TableCell>
+						<TableCell>שם עליה לתורה</TableCell>
+						<TableCell>תאריך לידה</TableCell>
+						<TableCell>יחוס</TableCell>
+						<TableCell>פרשת בר מצווה</TableCell>
+						<TableCell>תאריך עלייה אחרונה</TableCell>
+						<TableCell>אישה/בעל</TableCell>
+						<TableCell>מספר ילדים</TableCell>
+					</TableRow>
+				</TableHead>
+				<TableBody>
+					{
+						data.map(row => <MemberRow key={row.id} data={row}></MemberRow>)
+					}
+				</TableBody>
+			</Table>
+		);
 	}
 }
