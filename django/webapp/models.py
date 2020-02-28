@@ -1,7 +1,7 @@
 import math
 from datetime import date
 
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.query import QuerySet
 from django_enumfield import enum

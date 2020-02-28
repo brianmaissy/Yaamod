@@ -1,6 +1,6 @@
 from datetime import date
 
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from pyluach.dates import HebrewDate
