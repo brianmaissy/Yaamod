@@ -37,7 +37,6 @@ class CannotGetAliya(Exception):
 
 class Synagogue(models.Model):
     name = models.TextField()
-    admins = models.ForeignKey(Group, on_delete=models.CASCADE)
     member_creator = models.ForeignKey(User, on_delete=models.CASCADE)
     in_israel = models.BooleanField(default=True)
     in_jerusalem = models.BooleanField(default=False)
@@ -278,3 +277,8 @@ class Person(models.Model):
             return AliyaPrecedenceReason.BAR_MITZVAH_PARASHA
         else:
             return None
+
+
+class UserToSynagogue(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    synagogue = models.ForeignKey(Synagogue, on_delete=models.CASCADE)

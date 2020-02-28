@@ -11,8 +11,8 @@ from webapp.models import Synagogue, Person, Yichus, AliyaPrecedenceReason, Gend
 
 class MembersTestCase(TestCase):
     def setUp(self):
-        self.synagogue = Synagogue.objects.create(name='Klal Yisrael', admins=Group.objects.create(name='admins'),
-                                                  member_creator=User.objects.create(username='admin'))
+        self.synagogue = Synagogue.objects.create(name='Klal Yisrael',
+                                                  member_creator=User.objects.create(username='blah'))
         self.father = Person.objects.create(synagogue=self.synagogue, first_name='Dad', gender=Gender.MALE,
                                             date_of_death=date(2018, 11, 11))
         self.mother = Person.objects.create(synagogue=self.synagogue, first_name='Mom', gender=Gender.FEMALE,

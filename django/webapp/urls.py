@@ -5,8 +5,8 @@ from . import views
 urlpatterns = [
     path('synagogue', views.SynagogueListCreateView.as_view()),
     path('synagogue/<int:pk>', views.SynagogueDetailView.as_view()),
-    path('synagogue/<int:synagogue_pk>/person', views.PersonListCreateView.as_view()),
-    path('synagogue/<int:synagogue_pk>/person/<int:pk>', views.PersonListCreateView.as_view()),
+    path('person', views.PersonListCreateView.as_view()),
+    path('person/<int:pk>', views.PersonDetailView.as_view()),
     path('user', views.UserCreateAPIView.as_view()),
     path('login', views.LoginView.as_view()),
     path('logout', views.LogoutView.as_view()),
