@@ -17,19 +17,15 @@ export default class MemberRow extends React.Component {
 				<NullableCell>
 					{
 						father_json
-						?
+						&&
 						<Link onClick={() => console.log('click on father', father_json.id)}>{father_json.name}</Link	>
-						:
-						'-'
 					}
 				</NullableCell>
 				<NullableCell>
 					{
 						mother_json
-						?
+						&&
 						<Link onClick={() => console.log('click on mother', mother_json.id)}>{mother_json.name}</Link>
-						:
-						'-'
 					}
 				</NullableCell>
 				<NullableCell>{paternal_name}</NullableCell>
@@ -40,10 +36,8 @@ export default class MemberRow extends React.Component {
 				<NullableCell>
 					{
 						wife_json
-						?
+						&&
 						<Link onClick={() =>console.log('click on wife', wife_json.id)}>{wife_json.name}</Link>
-						:
-						'-'
 					}
 				</NullableCell>
 				<NullableCell>{num_of_children}</NullableCell>
