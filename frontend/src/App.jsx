@@ -13,6 +13,7 @@ import {
   Route,
 } from 'react-router-dom';
 import MembersTable from './components/MembersTable';
+import RTL from './RTL';
 
 class App extends React.Component {
   constructor(props){
@@ -27,16 +28,18 @@ class App extends React.Component {
   }
   render() {
     return (
-    <ConfigProvider locale={he_IL}>
-      <Router>
-        <NavBar token={this.state.token} onUpdateToken={this.updateToken.bind(this)}/>
-        <Switch>
-          <Route path='/manage' component={ManageRouter} />
-          <Route path='/findPrayer' component={ShulList} />
-          <Route path='/about' component={MembersTable} />
-        </Switch>
-      </Router>
-    </ConfigProvider>
+			<RTL>
+				<ConfigProvider locale={he_IL} direction='rtl'>
+					<Router>
+						<NavBar token={this.state.token} onUpdateToken={this.updateToken.bind(this)}/>
+						<Switch>
+							<Route path='/manage' component={ManageRouter} />
+							<Route path='/findPrayer' component={ShulList} />
+							<Route path='/about' component={MembersTable} />
+						</Switch>
+					</Router>
+				</ConfigProvider>
+			</RTL>
     );
   }
 }
