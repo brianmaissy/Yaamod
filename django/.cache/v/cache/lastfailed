@@ -1,0 +1,13 @@
+{
+  "webapp/tests/test_date_utils.py::TestCase": true,
+  "webapp/tests/test_date_utils.py::TestHebrewDate": true,
+  "webapp/tests/test_date_utils.py::TestNextAnniversaryOf": true,
+  "webapp/tests/test_date_utils.py::TestNextReadingOfParasha": true,
+  "webapp/tests/test_date_utils.py::TestNthAnniversaryOf": true,
+  "webapp/tests/test_date_utils.py::TestTorahReadingOccasions": true,
+  "webapp/tests/test_models.py": true,
+  "webapp/tests/test_views.py::TestCase": true,
+  "webapp/tests/test_views.py::TestPerms": true,
+  "webapp/tests/test_views.py::TestSynagogueView": true,
+  "webapp/tests/test_views.py::ViewTest": true
+}

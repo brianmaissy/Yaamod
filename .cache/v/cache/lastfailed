@@ -1,0 +1,22 @@
+{
+  "django/webapp/tests/test_date_utils.py::TestHebrewDate::test_hebrew_date": true,
+  "django/webapp/tests/test_date_utils.py::TestNextAnniversaryOf::test_next_anniversary_invalid_reference_date": true,
+  "django/webapp/tests/test_date_utils.py::TestNextAnniversaryOf::test_next_anniversary_is_a_year_from_yesterday": true,
+  "django/webapp/tests/test_date_utils.py::TestNextAnniversaryOf::test_next_anniversary_is_today": true,
+  "django/webapp/tests/test_date_utils.py::TestNextAnniversaryOf::test_next_anniversary_is_tomorrow": true,
+  "django/webapp/tests/test_date_utils.py::TestNextReadingOfParasha::test_double_parasha": true,
+  "django/webapp/tests/test_date_utils.py::TestNextReadingOfParasha::test_next_reading_is_later_this_year": true,
+  "django/webapp/tests/test_date_utils.py::TestNextReadingOfParasha::test_next_reading_is_next_year": true,
+  "django/webapp/tests/test_date_utils.py::TestNextReadingOfParasha::test_next_reading_is_this_shabbat": true,
+  "django/webapp/tests/test_date_utils.py::TestNextReadingOfParasha::test_next_reading_is_today": true,
+  "django/webapp/tests/test_date_utils.py::TestNthAnniversaryOf::test_adar_anniversary_in_leap_year": true,
+  "django/webapp/tests/test_date_utils.py::TestNthAnniversaryOf::test_adar_bar_mitzvah_paradox": true,
+  "django/webapp/tests/test_date_utils.py::TestNthAnniversaryOf::test_anniversary_of_30_adar_rishon": true,
+  "django/webapp/tests/test_date_utils.py::TestNthAnniversaryOf::test_anniversary_of_30_cheshvan": true,
+  "django/webapp/tests/test_date_utils.py::TestTorahReadingOccasions::test_occasions": true,
+  "django/webapp/tests/test_models.py": true,
+  "django/webapp/tests/test_views.py::TestPerms::test_add_to_admins": true,
+  "django/webapp/tests/test_views.py::TestPerms::test_cant_add_synagogue_user": true,
+  "django/webapp/tests/test_views.py::TestPerms::test_unauthorized_user": true,
+  "django/webapp/tests/test_views.py::TestSynagogueView::test_synagogue": true
+}

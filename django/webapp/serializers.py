@@ -3,7 +3,7 @@ import abc
 from django.contrib.auth.models import User, Group
 from rest_framework.serializers import ModelSerializer, CharField, PrimaryKeyRelatedField, Serializer
 
-from webapp.models import Synagogue
+from webapp.models import Synagogue, Person
 
 
 class SynagoguePermissionCheckMixin:
@@ -65,3 +65,12 @@ class MakeAddMemberTokenSerializer(Serializer, SynagoguePermissionCheckMixin):
 
     def get_synagogue(self):
         return self.validated_data['synagogue']
+
+
+class PersonSerializer(ModelSerializer, SynagoguePermissionCheckMixin):
+    class Meta:
+        model = Person
+        fields = '__all__'
+
+    def create(self, validated_data):
+        return Person.objects.create(**validated_data)

@@ -1,1 +1,797 @@
-[{"model": "webapp.person", "pk": 1, "fields": {"synagogue": 1, "formal_name": "\u05e2\u05de\u05e8\u05dd", "date_of_death": null, "date_of_death_after_sunset": false}}, {"model": "webapp.person", "pk": 2, "fields": {"synagogue": 1, "formal_name": "\u05d9\u05d5\u05db\u05d1\u05d3", "date_of_death": null, "date_of_death_after_sunset": false}}, {"model": "webapp.person", "pk": 3, "fields": {"synagogue": 1, "formal_name": "\u05d9\u05ea\u05e8\u05d5", "date_of_death": null, "date_of_death_after_sunset": false}}, {"model": "webapp.person", "pk": 4, "fields": {"synagogue": 1, "formal_name": "\u05de\u05d3\u05d9\u05e0\u05d9\u05ea", "date_of_death": null, "date_of_death_after_sunset": false}}, {"model": "webapp.person", "pk": 5, "fields": {"synagogue": 1, "formal_name": "\u05e6\u05e4\u05d5\u05e8\u05d4", "date_of_death": null, "date_of_death_after_sunset": false}}, {"model": "webapp.person", "pk": 7, "fields": {"synagogue": 1, "formal_name": "\u05de\u05e9\u05d4", "date_of_death": "1120-01-01", "date_of_death_after_sunset": false}}, {"model": "webapp.member", "pk": 5, "fields": {"manual_first_name": "", "last_name": "\u05de\u05d3\u05d9\u05e0\u05d9\u05ea", "date_of_birth": "1000-01-01", "date_of_birth_after_sunset": false, "father": 3, "mother": 4}}, {"model": "webapp.member", "pk": 7, "fields": {"manual_first_name": "", "last_name": "\u05e8\u05d1\u05d9\u05e0\u05d5", "date_of_birth": "1000-01-01", "date_of_birth_after_sunset": false, "father": 1, "mother": 2}}, {"model": "webapp.malemember", "pk": 7, "fields": {"yichus": 2, "cannot_get_aliya": false, "can_be_hazan": true, "can_read_torah": true, "can_read_haftarah": false, "bar_mitzvah_parasha": 12, "last_aliya_date": "1120-01-01", "wife": 5}}, {"model": "contenttypes.contenttype", "pk": 1, "fields": {"app_label": "webapp", "model": "synagogue"}}, {"model": "contenttypes.contenttype", "pk": 2, "fields": {"app_label": "webapp", "model": "person"}}, {"model": "contenttypes.contenttype", "pk": 3, "fields": {"app_label": "webapp", "model": "member"}}, {"model": "contenttypes.contenttype", "pk": 4, "fields": {"app_label": "webapp", "model": "malemember"}}, {"model": "contenttypes.contenttype", "pk": 5, "fields": {"app_label": "admin", "model": "logentry"}}, {"model": "contenttypes.contenttype", "pk": 6, "fields": {"app_label": "auth", "model": "permission"}}, {"model": "contenttypes.contenttype", "pk": 7, "fields": {"app_label": "auth", "model": "group"}}, {"model": "contenttypes.contenttype", "pk": 8, "fields": {"app_label": "auth", "model": "user"}}, {"model": "contenttypes.contenttype", "pk": 9, "fields": {"app_label": "contenttypes", "model": "contenttype"}}, {"model": "contenttypes.contenttype", "pk": 10, "fields": {"app_label": "sessions", "model": "session"}}, {"model": "sessions.session", "pk": "ne7b9pbgc900tcpwyuovy5q71da33kcy", "fields": {"session_data": "NGJmNzk3ZmE4Mzc1MjUxNmE4YmM3ZTVjOTgzNWZmNWRiZTViNjhlMzp7Il9hdXRoX3VzZXJfaWQiOiIyIiwiX2F1dGhfdXNlcl9iYWNrZW5kIjoiZGphbmdvLmNvbnRyaWIuYXV0aC5iYWNrZW5kcy5Nb2RlbEJhY2tlbmQiLCJfYXV0aF91c2VyX2hhc2giOiJlYWQ3NTliOGUxODdhZGJkYTU0NzE1YjRhODY4MjhhNzk1ZTFiYjA4In0=", "expire_date": "2019-11-03T12:16:48.295Z"}}, {"model": "sessions.session", "pk": "sy7yhsnqf1oysdvrcapw45batgi4ys8z", "fields": {"session_data": "MTBkYjE0ZjI0YjA3NmE3ZTI5NjY3YzZmYjRmN2I5NmVhZmMwMDA0OTp7Il9hdXRoX3VzZXJfaWQiOiIxIiwiX2F1dGhfdXNlcl9iYWNrZW5kIjoiZGphbmdvLmNvbnRyaWIuYXV0aC5iYWNrZW5kcy5Nb2RlbEJhY2tlbmQiLCJfYXV0aF91c2VyX2hhc2giOiJiNTQzYmI4ZGY5YTUzMDZlZDM5OWNjY2E3N2ExNmUyMTVkYzM3YzBlIn0=", "expire_date": "2019-11-03T12:14:07.117Z"}}, {"model": "auth.permission", "pk": 1, "fields": {"name": "Can add synagogue", "content_type": 1, "codename": "add_synagogue"}}, {"model": "auth.permission", "pk": 2, "fields": {"name": "Can change synagogue", "content_type": 1, "codename": "change_synagogue"}}, {"model": "auth.permission", "pk": 3, "fields": {"name": "Can delete synagogue", "content_type": 1, "codename": "delete_synagogue"}}, {"model": "auth.permission", "pk": 4, "fields": {"name": "Can view synagogue", "content_type": 1, "codename": "view_synagogue"}}, {"model": "auth.permission", "pk": 5, "fields": {"name": "Can add person", "content_type": 2, "codename": "add_person"}}, {"model": "auth.permission", "pk": 6, "fields": {"name": "Can change person", "content_type": 2, "codename": "change_person"}}, {"model": "auth.permission", "pk": 7, "fields": {"name": "Can delete person", "content_type": 2, "codename": "delete_person"}}, {"model": "auth.permission", "pk": 8, "fields": {"name": "Can view person", "content_type": 2, "codename": "view_person"}}, {"model": "auth.permission", "pk": 9, "fields": {"name": "Can add member", "content_type": 3, "codename": "add_member"}}, {"model": "auth.permission", "pk": 10, "fields": {"name": "Can change member", "content_type": 3, "codename": "change_member"}}, {"model": "auth.permission", "pk": 11, "fields": {"name": "Can delete member", "content_type": 3, "codename": "delete_member"}}, {"model": "auth.permission", "pk": 12, "fields": {"name": "Can view member", "content_type": 3, "codename": "view_member"}}, {"model": "auth.permission", "pk": 13, "fields": {"name": "Can add male member", "content_type": 4, "codename": "add_malemember"}}, {"model": "auth.permission", "pk": 14, "fields": {"name": "Can change male member", "content_type": 4, "codename": "change_malemember"}}, {"model": "auth.permission", "pk": 15, "fields": {"name": "Can delete male member", "content_type": 4, "codename": "delete_malemember"}}, {"model": "auth.permission", "pk": 16, "fields": {"name": "Can view male member", "content_type": 4, "codename": "view_malemember"}}, {"model": "auth.permission", "pk": 17, "fields": {"name": "Can add log entry", "content_type": 5, "codename": "add_logentry"}}, {"model": "auth.permission", "pk": 18, "fields": {"name": "Can change log entry", "content_type": 5, "codename": "change_logentry"}}, {"model": "auth.permission", "pk": 19, "fields": {"name": "Can delete log entry", "content_type": 5, "codename": "delete_logentry"}}, {"model": "auth.permission", "pk": 20, "fields": {"name": "Can view log entry", "content_type": 5, "codename": "view_logentry"}}, {"model": "auth.permission", "pk": 21, "fields": {"name": "Can add permission", "content_type": 6, "codename": "add_permission"}}, {"model": "auth.permission", "pk": 22, "fields": {"name": "Can change permission", "content_type": 6, "codename": "change_permission"}}, {"model": "auth.permission", "pk": 23, "fields": {"name": "Can delete permission", "content_type": 6, "codename": "delete_permission"}}, {"model": "auth.permission", "pk": 24, "fields": {"name": "Can view permission", "content_type": 6, "codename": "view_permission"}}, {"model": "auth.permission", "pk": 25, "fields": {"name": "Can add group", "content_type": 7, "codename": "add_group"}}, {"model": "auth.permission", "pk": 26, "fields": {"name": "Can change group", "content_type": 7, "codename": "change_group"}}, {"model": "auth.permission", "pk": 27, "fields": {"name": "Can delete group", "content_type": 7, "codename": "delete_group"}}, {"model": "auth.permission", "pk": 28, "fields": {"name": "Can view group", "content_type": 7, "codename": "view_group"}}, {"model": "auth.permission", "pk": 29, "fields": {"name": "Can add user", "content_type": 8, "codename": "add_user"}}, {"model": "auth.permission", "pk": 30, "fields": {"name": "Can change user", "content_type": 8, "codename": "change_user"}}, {"model": "auth.permission", "pk": 31, "fields": {"name": "Can delete user", "content_type": 8, "codename": "delete_user"}}, {"model": "auth.permission", "pk": 32, "fields": {"name": "Can view user", "content_type": 8, "codename": "view_user"}}, {"model": "auth.permission", "pk": 33, "fields": {"name": "Can add content type", "content_type": 9, "codename": "add_contenttype"}}, {"model": "auth.permission", "pk": 34, "fields": {"name": "Can change content type", "content_type": 9, "codename": "change_contenttype"}}, {"model": "auth.permission", "pk": 35, "fields": {"name": "Can delete content type", "content_type": 9, "codename": "delete_contenttype"}}, {"model": "auth.permission", "pk": 36, "fields": {"name": "Can view content type", "content_type": 9, "codename": "view_contenttype"}}, {"model": "auth.permission", "pk": 37, "fields": {"name": "Can add session", "content_type": 10, "codename": "add_session"}}, {"model": "auth.permission", "pk": 38, "fields": {"name": "Can change session", "content_type": 10, "codename": "change_session"}}, {"model": "auth.permission", "pk": 39, "fields": {"name": "Can delete session", "content_type": 10, "codename": "delete_session"}}, {"model": "auth.permission", "pk": 40, "fields": {"name": "Can view session", "content_type": 10, "codename": "view_session"}}, {"model": "auth.group", "pk": 1, "fields": {"name": "synagogue_MySynagogue_admins", "permissions": []}}, {"model": "auth.user", "pk": 1, "fields": {"password": "pbkdf2_sha256$150000$HkppC2JqFAmt$0l+fXGoELlm59nybLK7oSds1MoH7IakMyWMRpcnbc+4=", "last_login": "2019-10-20T12:14:07.059Z", "is_superuser": true, "username": "root", "first_name": "", "last_name": "", "email": "", "is_staff": true, "is_active": true, "date_joined": "2019-10-20T12:14:04.116Z", "groups": [], "user_permissions": []}}, {"model": "auth.user", "pk": 2, "fields": {"password": "pbkdf2_sha256$150000$IVLxLjQNwbop$TQyo+PPGMtEmyHv+iMVAvsrWB2TCp+vZ5vKGobWRt5I=", "last_login": "2019-10-20T12:16:48.019Z", "is_superuser": false, "username": "brian2", "first_name": "", "last_name": "", "email": "brian.maissy@gmail.com", "is_staff": false, "is_active": true, "date_joined": "2019-10-20T12:16:18.409Z", "groups": [1], "user_permissions": []}}, {"model": "admin.logentry", "pk": 1, "fields": {"action_time": "2019-10-20T12:17:25.887Z", "user": 1, "content_type": 2, "object_id": "1", "object_repr": "\u05e2\u05de\u05e8\u05dd", "action_flag": 1, "change_message": "[{\"added\": {}}]"}}, {"model": "admin.logentry", "pk": 2, "fields": {"action_time": "2019-10-20T12:17:33.321Z", "user": 1, "content_type": 2, "object_id": "2", "object_repr": "\u05d9\u05d5\u05db\u05d1\u05d3", "action_flag": 1, "change_message": "[{\"added\": {}}]"}}, {"model": "admin.logentry", "pk": 3, "fields": {"action_time": "2019-10-20T12:17:36.150Z", "user": 1, "content_type": 2, "object_id": "2", "object_repr": "\u05d9\u05d5\u05db\u05d1\u05d3", "action_flag": 2, "change_message": "[]"}}, {"model": "admin.logentry", "pk": 4, "fields": {"action_time": "2019-10-20T12:17:47.850Z", "user": 1, "content_type": 2, "object_id": "3", "object_repr": "\u05d9\u05ea\u05e8\u05d5", "action_flag": 1, "change_message": "[{\"added\": {}}]"}}, {"model": "admin.logentry", "pk": 5, "fields": {"action_time": "2019-10-20T12:22:04.691Z", "user": 1, "content_type": 2, "object_id": "4", "object_repr": "\u05de\u05d3\u05d9\u05e0\u05d9\u05ea", "action_flag": 1, "change_message": "[{\"added\": {}}]"}}, {"model": "admin.logentry", "pk": 6, "fields": {"action_time": "2019-10-20T12:22:32.473Z", "user": 1, "content_type": 3, "object_id": "5", "object_repr": "\u05e6\u05e4\u05d5\u05e8\u05d4 \u05de\u05d3\u05d9\u05e0\u05d9\u05ea", "action_flag": 1, "change_message": "[{\"added\": {}}]"}}, {"model": "admin.logentry", "pk": 7, "fields": {"action_time": "2019-10-20T12:22:54.525Z", "user": 1, "content_type": 3, "object_id": "6", "object_repr": "\u05de\u05e9\u05d4 \u05e8\u05d1\u05d9\u05e0\u05d5", "action_flag": 1, "change_message": "[{\"added\": {}}]"}}, {"model": "admin.logentry", "pk": 8, "fields": {"action_time": "2019-10-20T12:23:14.378Z", "user": 1, "content_type": 3, "object_id": "6", "object_repr": "\u05de\u05e9\u05d4 \u05e8\u05d1\u05d9\u05e0\u05d5", "action_flag": 3, "change_message": ""}}, {"model": "admin.logentry", "pk": 9, "fields": {"action_time": "2019-10-20T12:25:20.769Z", "user": 1, "content_type": 4, "object_id": "7", "object_repr": "\u05de\u05e9\u05d4 \u05e8\u05d1\u05d9\u05e0\u05d5", "action_flag": 1, "change_message": "[{\"added\": {}}]"}}, {"model": "webapp.synagogue", "pk": 1, "fields": {"name": "MySynagogue", "admins": 1}}]
+[
+  {
+    "model": "webapp.person",
+    "pk": 1,
+    "fields": {
+      "synagogue": 1,
+      "first_name": "Dad",
+      "last_name": "",
+      "maiden_name": "",
+      "date_of_birth": null,
+      "date_of_birth_after_sunset": false,
+      "date_of_death": "2018-11-11",
+      "date_of_death_after_sunset": false,
+      "gender": 1,
+      "is_member": false,
+      "email": "",
+      "address": "",
+      "phone_number": "",
+      "yichus": null,
+      "manual_paternal_name": "",
+      "manual_maternal_name": "",
+      "cannot_get_aliya": false,
+      "can_be_hazan": false,
+      "can_read_torah": false,
+      "can_read_haftarah": false,
+      "bar_mitzvah_parasha": null,
+      "last_aliya_date": null,
+      "father": null,
+      "mother": null,
+      "wife": null
+    }
+  },
+  {
+    "model": "webapp.person",
+    "pk": 2,
+    "fields": {
+      "synagogue": 1,
+      "first_name": "Mom",
+      "last_name": "",
+      "maiden_name": "",
+      "date_of_birth": null,
+      "date_of_birth_after_sunset": false,
+      "date_of_death": "2017-03-03",
+      "date_of_death_after_sunset": false,
+      "gender": 2,
+      "is_member": false,
+      "email": "",
+      "address": "",
+      "phone_number": "",
+      "yichus": null,
+      "manual_paternal_name": "",
+      "manual_maternal_name": "",
+      "cannot_get_aliya": false,
+      "can_be_hazan": false,
+      "can_read_torah": false,
+      "can_read_haftarah": false,
+      "bar_mitzvah_parasha": null,
+      "last_aliya_date": null,
+      "father": null,
+      "mother": null,
+      "wife": null
+    }
+  },
+  {
+    "model": "webapp.person",
+    "pk": 3,
+    "fields": {
+      "synagogue": 1,
+      "first_name": "Sarah",
+      "last_name": "Levi",
+      "maiden_name": "",
+      "date_of_birth": "1970-01-01",
+      "date_of_birth_after_sunset": false,
+      "date_of_death": null,
+      "date_of_death_after_sunset": false,
+      "gender": 2,
+      "is_member": true,
+      "email": "",
+      "address": "",
+      "phone_number": "",
+      "yichus": null,
+      "manual_paternal_name": "",
+      "manual_maternal_name": "",
+      "cannot_get_aliya": false,
+      "can_be_hazan": false,
+      "can_read_torah": false,
+      "can_read_haftarah": false,
+      "bar_mitzvah_parasha": null,
+      "last_aliya_date": null,
+      "father": 1,
+      "mother": 2,
+      "wife": null
+    }
+  },
+  {
+    "model": "webapp.person",
+    "pk": 4,
+    "fields": {
+      "synagogue": 1,
+      "first_name": "Shimon",
+      "last_name": "Levi",
+      "maiden_name": "",
+      "date_of_birth": "1984-01-01",
+      "date_of_birth_after_sunset": false,
+      "date_of_death": null,
+      "date_of_death_after_sunset": false,
+      "gender": 1,
+      "is_member": true,
+      "email": "",
+      "address": "",
+      "phone_number": "",
+      "yichus": 2,
+      "manual_paternal_name": "",
+      "manual_maternal_name": "",
+      "cannot_get_aliya": false,
+      "can_be_hazan": false,
+      "can_read_torah": false,
+      "can_read_haftarah": false,
+      "bar_mitzvah_parasha": null,
+      "last_aliya_date": null,
+      "father": 1,
+      "mother": 2,
+      "wife": null
+    }
+  },
+  {
+    "model": "webapp.person",
+    "pk": 5,
+    "fields": {
+      "synagogue": 1,
+      "first_name": "Father in Law",
+      "last_name": "",
+      "maiden_name": "",
+      "date_of_birth": null,
+      "date_of_birth_after_sunset": false,
+      "date_of_death": null,
+      "date_of_death_after_sunset": false,
+      "gender": null,
+      "is_member": false,
+      "email": "",
+      "address": "",
+      "phone_number": "",
+      "yichus": null,
+      "manual_paternal_name": "",
+      "manual_maternal_name": "",
+      "cannot_get_aliya": false,
+      "can_be_hazan": false,
+      "can_read_torah": false,
+      "can_read_haftarah": false,
+      "bar_mitzvah_parasha": null,
+      "last_aliya_date": null,
+      "father": null,
+      "mother": null,
+      "wife": null
+    }
+  },
+  {
+    "model": "webapp.person",
+    "pk": 6,
+    "fields": {
+      "synagogue": 1,
+      "first_name": "Mother in Law",
+      "last_name": "",
+      "maiden_name": "",
+      "date_of_birth": null,
+      "date_of_birth_after_sunset": false,
+      "date_of_death": null,
+      "date_of_death_after_sunset": false,
+      "gender": null,
+      "is_member": false,
+      "email": "",
+      "address": "",
+      "phone_number": "",
+      "yichus": null,
+      "manual_paternal_name": "",
+      "manual_maternal_name": "",
+      "cannot_get_aliya": false,
+      "can_be_hazan": false,
+      "can_read_torah": false,
+      "can_read_haftarah": false,
+      "bar_mitzvah_parasha": null,
+      "last_aliya_date": null,
+      "father": null,
+      "mother": null,
+      "wife": null
+    }
+  },
+  {
+    "model": "webapp.person",
+    "pk": 7,
+    "fields": {
+      "synagogue": 1,
+      "first_name": "Rivkah",
+      "last_name": "Levi",
+      "maiden_name": "Cohen",
+      "date_of_birth": "1982-06-05",
+      "date_of_birth_after_sunset": false,
+      "date_of_death": null,
+      "date_of_death_after_sunset": false,
+      "gender": 2,
+      "is_member": true,
+      "email": "",
+      "address": "",
+      "phone_number": "",
+      "yichus": null,
+      "manual_paternal_name": "",
+      "manual_maternal_name": "",
+      "cannot_get_aliya": false,
+      "can_be_hazan": false,
+      "can_read_torah": false,
+      "can_read_haftarah": false,
+      "bar_mitzvah_parasha": null,
+      "last_aliya_date": null,
+      "father": 5,
+      "mother": 6,
+      "wife": null
+    }
+  },
+  {
+    "model": "webapp.person",
+    "pk": 8,
+    "fields": {
+      "synagogue": 1,
+      "first_name": "Reuven",
+      "last_name": "Levi",
+      "maiden_name": "",
+      "date_of_birth": "1980-12-15",
+      "date_of_birth_after_sunset": false,
+      "date_of_death": null,
+      "date_of_death_after_sunset": false,
+      "gender": 1,
+      "is_member": true,
+      "email": "reuven@klalyisrael.org.il",
+      "address": "Gabash",
+      "phone_number": "052-999-9999",
+      "yichus": 2,
+      "manual_paternal_name": "",
+      "manual_maternal_name": "",
+      "cannot_get_aliya": false,
+      "can_be_hazan": false,
+      "can_read_torah": false,
+      "can_read_haftarah": true,
+      "bar_mitzvah_parasha": 12,
+      "last_aliya_date": null,
+      "father": 1,
+      "mother": 2,
+      "wife": 7
+    }
+  },
+  {
+    "model": "webapp.person",
+    "pk": 9,
+    "fields": {
+      "synagogue": 1,
+      "first_name": "Yitzik",
+      "last_name": "Levi",
+      "maiden_name": "",
+      "date_of_birth": "2019-01-01",
+      "date_of_birth_after_sunset": false,
+      "date_of_death": null,
+      "date_of_death_after_sunset": false,
+      "gender": 1,
+      "is_member": true,
+      "email": "",
+      "address": "",
+      "phone_number": "",
+      "yichus": 2,
+      "manual_paternal_name": "",
+      "manual_maternal_name": "",
+      "cannot_get_aliya": false,
+      "can_be_hazan": false,
+      "can_read_torah": false,
+      "can_read_haftarah": false,
+      "bar_mitzvah_parasha": null,
+      "last_aliya_date": null,
+      "father": 8,
+      "mother": 7,
+      "wife": null
+    }
+  },
+  {
+    "model": "webapp.person",
+    "pk": 10,
+    "fields": {
+      "synagogue": 1,
+      "first_name": "Moshe",
+      "last_name": "Cohen",
+      "maiden_name": "",
+      "date_of_birth": "1978-02-01",
+      "date_of_birth_after_sunset": false,
+      "date_of_death": null,
+      "date_of_death_after_sunset": false,
+      "gender": 1,
+      "is_member": true,
+      "email": "",
+      "address": "",
+      "phone_number": "",
+      "yichus": 1,
+      "manual_paternal_name": "\u05de\u05e9\u05d4 \u05d1\u05df \u05e9\u05de\u05d5\u05d0\u05dc",
+      "manual_maternal_name": "",
+      "cannot_get_aliya": false,
+      "can_be_hazan": false,
+      "can_read_torah": false,
+      "can_read_haftarah": false,
+      "bar_mitzvah_parasha": null,
+      "last_aliya_date": null,
+      "father": 5,
+      "mother": 6,
+      "wife": null
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 1,
+    "fields": {
+      "app_label": "webapp",
+      "model": "synagogue"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 2,
+    "fields": {
+      "app_label": "webapp",
+      "model": "person"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 3,
+    "fields": {
+      "app_label": "admin",
+      "model": "logentry"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 4,
+    "fields": {
+      "app_label": "auth",
+      "model": "permission"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 5,
+    "fields": {
+      "app_label": "auth",
+      "model": "group"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 6,
+    "fields": {
+      "app_label": "auth",
+      "model": "user"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 7,
+    "fields": {
+      "app_label": "contenttypes",
+      "model": "contenttype"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 8,
+    "fields": {
+      "app_label": "sessions",
+      "model": "session"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 9,
+    "fields": {
+      "app_label": "django_rest_passwordreset",
+      "model": "resetpasswordtoken"
+    }
+  },
+  {
+    "model": "contenttypes.contenttype",
+    "pk": 10,
+    "fields": {
+      "app_label": "authtoken",
+      "model": "token"
+    }
+  },
+  {
+    "model": "sessions.session",
+    "pk": "rtsi8fczbgxd4z1w8st9l9uygaqqg634",
+    "fields": {
+      "session_data": "ZTFhYzI5MjAwMjljZmM0NDRlN2I2OTgyMzlkZTY0ZGYzNTFjMzUwOTp7Il9hdXRoX3VzZXJfaWQiOiIxIiwiX2F1dGhfdXNlcl9iYWNrZW5kIjoiZGphbmdvLmNvbnRyaWIuYXV0aC5iYWNrZW5kcy5Nb2RlbEJhY2tlbmQiLCJfYXV0aF91c2VyX2hhc2giOiI4YWM3OGQzODVlYWEwM2QxNmYxMThjMjQyOTJmMzBjMWJiYjkzMDFmIn0=",
+      "expire_date": "2020-02-01T19:43:37.450Z"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 1,
+    "fields": {
+      "name": "Can add synagogue",
+      "content_type": 1,
+      "codename": "add_synagogue"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 2,
+    "fields": {
+      "name": "Can change synagogue",
+      "content_type": 1,
+      "codename": "change_synagogue"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 3,
+    "fields": {
+      "name": "Can delete synagogue",
+      "content_type": 1,
+      "codename": "delete_synagogue"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 4,
+    "fields": {
+      "name": "Can view synagogue",
+      "content_type": 1,
+      "codename": "view_synagogue"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 5,
+    "fields": {
+      "name": "Can add person",
+      "content_type": 2,
+      "codename": "add_person"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 6,
+    "fields": {
+      "name": "Can change person",
+      "content_type": 2,
+      "codename": "change_person"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 7,
+    "fields": {
+      "name": "Can delete person",
+      "content_type": 2,
+      "codename": "delete_person"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 8,
+    "fields": {
+      "name": "Can view person",
+      "content_type": 2,
+      "codename": "view_person"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 9,
+    "fields": {
+      "name": "Can add log entry",
+      "content_type": 3,
+      "codename": "add_logentry"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 10,
+    "fields": {
+      "name": "Can change log entry",
+      "content_type": 3,
+      "codename": "change_logentry"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 11,
+    "fields": {
+      "name": "Can delete log entry",
+      "content_type": 3,
+      "codename": "delete_logentry"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 12,
+    "fields": {
+      "name": "Can view log entry",
+      "content_type": 3,
+      "codename": "view_logentry"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 13,
+    "fields": {
+      "name": "Can add permission",
+      "content_type": 4,
+      "codename": "add_permission"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 14,
+    "fields": {
+      "name": "Can change permission",
+      "content_type": 4,
+      "codename": "change_permission"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 15,
+    "fields": {
+      "name": "Can delete permission",
+      "content_type": 4,
+      "codename": "delete_permission"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 16,
+    "fields": {
+      "name": "Can view permission",
+      "content_type": 4,
+      "codename": "view_permission"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 17,
+    "fields": {
+      "name": "Can add group",
+      "content_type": 5,
+      "codename": "add_group"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 18,
+    "fields": {
+      "name": "Can change group",
+      "content_type": 5,
+      "codename": "change_group"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 19,
+    "fields": {
+      "name": "Can delete group",
+      "content_type": 5,
+      "codename": "delete_group"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 20,
+    "fields": {
+      "name": "Can view group",
+      "content_type": 5,
+      "codename": "view_group"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 21,
+    "fields": {
+      "name": "Can add user",
+      "content_type": 6,
+      "codename": "add_user"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 22,
+    "fields": {
+      "name": "Can change user",
+      "content_type": 6,
+      "codename": "change_user"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 23,
+    "fields": {
+      "name": "Can delete user",
+      "content_type": 6,
+      "codename": "delete_user"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 24,
+    "fields": {
+      "name": "Can view user",
+      "content_type": 6,
+      "codename": "view_user"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 25,
+    "fields": {
+      "name": "Can add content type",
+      "content_type": 7,
+      "codename": "add_contenttype"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 26,
+    "fields": {
+      "name": "Can change content type",
+      "content_type": 7,
+      "codename": "change_contenttype"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 27,
+    "fields": {
+      "name": "Can delete content type",
+      "content_type": 7,
+      "codename": "delete_contenttype"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 28,
+    "fields": {
+      "name": "Can view content type",
+      "content_type": 7,
+      "codename": "view_contenttype"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 29,
+    "fields": {
+      "name": "Can add session",
+      "content_type": 8,
+      "codename": "add_session"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 30,
+    "fields": {
+      "name": "Can change session",
+      "content_type": 8,
+      "codename": "change_session"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 31,
+    "fields": {
+      "name": "Can delete session",
+      "content_type": 8,
+      "codename": "delete_session"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 32,
+    "fields": {
+      "name": "Can view session",
+      "content_type": 8,
+      "codename": "view_session"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 33,
+    "fields": {
+      "name": "Can add Password Reset Token",
+      "content_type": 9,
+      "codename": "add_resetpasswordtoken"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 34,
+    "fields": {
+      "name": "Can change Password Reset Token",
+      "content_type": 9,
+      "codename": "change_resetpasswordtoken"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 35,
+    "fields": {
+      "name": "Can delete Password Reset Token",
+      "content_type": 9,
+      "codename": "delete_resetpasswordtoken"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 36,
+    "fields": {
+      "name": "Can view Password Reset Token",
+      "content_type": 9,
+      "codename": "view_resetpasswordtoken"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 37,
+    "fields": {
+      "name": "Can add Token",
+      "content_type": 10,
+      "codename": "add_token"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 38,
+    "fields": {
+      "name": "Can change Token",
+      "content_type": 10,
+      "codename": "change_token"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 39,
+    "fields": {
+      "name": "Can delete Token",
+      "content_type": 10,
+      "codename": "delete_token"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 40,
+    "fields": {
+      "name": "Can view Token",
+      "content_type": 10,
+      "codename": "view_token"
+    }
+  },
+  {
+    "model": "auth.group",
+    "pk": 1,
+    "fields": {
+      "name": "admins",
+      "permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$150000$RnxMy0WFCpAj$M+nWxInQl7EQK64HjlbX5WbjvvAUVZRjeL3eXU9ZUts=",
+      "last_login": "2020-01-18T19:43:37.427Z",
+      "is_superuser": true,
+      "username": "admin",
+      "first_name": "",
+      "last_name": "",
+      "email": "",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2020-01-18T19:43:11.271Z",
+      "groups": [1],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "webapp.synagogue",
+    "pk": 1,
+    "fields": {
+      "name": "Klal Yisrael",
+      "admins": 1,
+      "member_creator": 1,
+      "in_israel": true,
+      "in_jerusalem": false
+    }
+  }
+]

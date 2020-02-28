@@ -9,10 +9,12 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from webapp.models import Synagogue
+from webapp.models import Synagogue, Person
 from webapp.permission import PostSynagoguePermission, AddUserPermissions, MakeAddMemberTokenPermissions, \
-    IsGetOrAuthenticated
-from webapp.serializers import UserSerializer, SynagogueSerializer, LoginSerializer, MakeAddMemberTokenSerializer
+    IsGetOrAuthenticated, GetSynagogueFromKwargsPermissions
+from webapp.serializers import UserSerializer, SynagogueSerializer, LoginSerializer, MakeAddMemberTokenSerializer, \
+    PersonSerializer
+from webapp.filters import GetFromSynagogueFilterBackend
 
 
 @method_decorator(atomic, name='dispatch')
@@ -34,6 +36,20 @@ class SynagogueDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Synagogue.objects.all()
     serializer_class = SynagogueSerializer
     permission_classes = (PostSynagoguePermission,)
+
+
+class PersonListCreateView(generics.ListCreateAPIView):
+    queryset = Person.objects.all()
+    serializer_class = PersonSerializer
+    filter_backends = (GetFromSynagogueFilterBackend,)
+    permission_classes = (GetSynagogueFromKwargsPermissions,)
+
+
+class PersonDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Person.objects.all()
+    serializer_class = PersonSerializer
+    filter_backends = (GetFromSynagogueFilterBackend,)
+    permission_classes = (GetSynagogueFromKwargsPermissions,)
 
 
 class LoginView(APIView):

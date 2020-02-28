@@ -1,6 +1,7 @@
 from django.test import TestCase
 from rest_framework import status
 from django.test.client import Client
+import os
 
 
 class RegularContentTypeClient(Client):
@@ -51,20 +52,23 @@ class ViewTest(TestCase):
     def logout(self):
         self.get_url('/logout', 'post')
 
+    def check_unauthorized(self, url, method, data=None):
+        unauthorized_statuses = [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN]
+        self.get_url(url, method, data, unauthorized_statuses)
+
     def check_perms(self, url, method, data=None, expected_status=status.HTTP_200_OK):
         """
         check that a view can be accessed while logged in, and unaccessible while not.
         """
-        unauthorized_statuses = [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN]
-        self.get_url(url, method, data, unauthorized_statuses)
+        self.check_unauthorized(url, method, data)
         self.login()
         response = self.get_url(url, method, data, expected_status)
         self.logout()
-        self.get_url(url, method, data, unauthorized_statuses)
+        self.check_unauthorized(url, method, data)
         return response
 
     def add_synagogue(self):
-        self.get_url('/synagogue', 'post', {'name': 'abc'}, status.HTTP_201_CREATED)
+        self.get_url('/synagogue', 'post', {'name': os.urandom(8)}, status.HTTP_201_CREATED)
 
 
 class TestSynagogueView(ViewTest):
@@ -122,3 +126,56 @@ class TestPerms(ViewTest):
         self.login('john1', 'doe1')
         self.do_update(True)
         self.logout()
+
+
+class TestPersonView(ViewTest):
+    def start_test(self):
+        self.add_user(login=True)
+        self.add_synagogue()
+
+    def add_person(self, synagogue_pk=1, url_pk=1, should_succeed=True, first_name=None, last_name=None):
+        json = {
+            'synagogue': synagogue_pk,
+            'first_name': first_name or os.urandom(8),
+            'last_name': last_name or os.urandom(8)
+        }
+        url = '/synagogue/{}/person'.format(url_pk)
+        if should_succeed:
+            self.get_url(url, 'post', data=json, expected_status=status.HTTP_201_CREATED)
+        else:
+            self.check_unauthorized(url, 'post', data=json)
+
+    def test_add_person(self):
+        self.start_test()
+        self.add_person()
+
+    def test_different_pk(self):
+        self.start_test()
+        self.add_synagogue()
+        self.add_person(1, 2, False)
+        self.add_person(2, 1, False)
+
+    def test_get_only_your_people(self):
+        self.start_test()
+        self.add_synagogue()
+        self.add_person(1, 1, first_name='a')
+        self.add_person(2, 2, first_name='b')
+        response = self.get_url('/synagogue/1/person', method='get')
+        self.check_response_is_person(response, 'a')
+
+    def test_no_perms_for_other_synagogue(self):
+        self.start_test()
+        self.add_person()
+        self.logout()
+        self.check_unauthorized('/synagogue/1/person', method='get')
+        self.check_unauthorized('/synagogue/1/person/1', method='get')
+
+    def check_response_is_person(self, response, person_first_name):
+        self.assertEqual(len(response.json()), 1)
+        self.assertEqual(response.json()[0]['first_name'], person_first_name)
+
+    def test_get_specific_person(self):
+        self.start_test()
+        self.add_person(first_name='a')
+        response = self.get_url('/synagogue/1/person/1', method='get')
+        self.check_response_is_person(response, 'a')
