@@ -1,7 +1,8 @@
 import React from 'react';
-import { Table, TableRow, TableCell, TableHead, TableBody } from '@material-ui/core'
+import { Table, TableRow, TableCell, TableHead, TableBody, CircularProgress } from '@material-ui/core'
 import MemberRow from './MemberRow';
 import _ from 'lodash';
+import { getPersonsInSynagouge } from '../services/api.service';
 
 const mockData = [
 		{
@@ -31,7 +32,45 @@ const mockData = [
 const data = _.map(_.range(0, 10), (eln, i) => ({...mockData[0], id: i}));
 
 export default class MembersTable extends React.Component {
+	_isMounted;
+	constructor(props) {
+		super(props);
+		this.state = {
+			isLoading: true,
+			data: {}
+		};
+	}
+	
+	componentDidMount() {
+		this._isMounted = true;
+		this.getData()
+	}
+
+	getData = async () => {
+		const data = await getPersonsInSynagouge();
+
+		// Make sure compoennt is still mounted
+		if (!this._isMounted) return;
+
+		this.setState({
+			data,
+			isLoading: false
+		});
+	}
+
+	componentWillUnmount() {
+		this._isMounted = false;
+	}
+
 	render() {
+		const { isLoading } = this.state;
+
+		if (isLoading) {
+			return (
+				<CircularProgress />
+			)
+		}
+
 		return (
 			<Table>
 				<TableHead>
