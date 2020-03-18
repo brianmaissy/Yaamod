@@ -40,7 +40,15 @@ export default class MemberRow extends React.Component {
 						<Link onClick={() =>console.log('click on wife', wife_json.id)}>{wife_json.name}</Link>
 					}
 				</NullableCell>
-				<NullableCell>{num_of_children}</NullableCell>
+				<NullableCell>
+					{
+						num_of_children
+						?
+						<Link onClick={() =>console.log('click on children - this should call api to get details and open list of children..')}>{num_of_children}</Link>
+						:
+						0
+					}
+				</NullableCell>
 			</TableRow>
 		);
 	}
