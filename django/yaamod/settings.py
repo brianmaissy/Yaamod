@@ -27,6 +27,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'www.yaamod.co.il', 'yaamod.co.il']
 
+# TODO: test cors in prod!
+CORS_ORIGIN_WHITELIST = [
+    "http://localhost:3000",
+]
+
+CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
@@ -40,10 +46,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_rest_passwordreset',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
+		'corsheaders'
 ]
 
 MIDDLEWARE = [
+		'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
