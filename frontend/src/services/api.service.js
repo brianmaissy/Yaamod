@@ -18,7 +18,6 @@ const apiCall = async (url, method=METHODS.GET, data=undefined) => {
 			method,
 			url,
 			data,
-			// crossDomain: true,
 			withCredentials: true
 		});
 		return axiosRes.data;
