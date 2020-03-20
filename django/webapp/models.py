@@ -282,23 +282,23 @@ class Person(models.Model):
     def gender_name(self) -> str:
         return Gender.label(self.gender).capitalize()
 
-    def _get_field_as_json(self, field: str) -> Optional[Dict]:
-        value = getattr(self, field)
-        if value is None:
+    @staticmethod
+    def _get_field_as_json(field: Optional['Person']) -> Optional[Dict]:
+        if field is None:
             return None
-        return {'id': value.pk, 'name': value.full_name}
+        return {'id': field.pk, 'name': field.full_name}
 
     @property
     def father_json(self) -> Optional[Dict]:
-        return self._get_field_as_json('father')
+        return self._get_field_as_json(self.father)
 
     @property
     def mother_json(self) -> Optional[Dict]:
-        return self._get_field_as_json('mother')
+        return self._get_field_as_json(self.mother)
 
     @property
     def wife_json(self) -> Optional[Dict]:
-        return self._get_field_as_json('wife')
+        return self._get_field_as_json(self.wife)
 
     @property
     def num_of_children(self) -> int:
