@@ -301,6 +301,10 @@ class Person(models.Model):
         return self._get_field_as_json(self.wife)
 
     @property
+    def husband_json(self) -> Optional[Dict]:
+        return self._get_field_as_json(self.husband)
+
+    @property
     def num_of_children(self) -> int:
         return len(self.children)
 

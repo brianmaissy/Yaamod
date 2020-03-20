@@ -52,8 +52,8 @@ class LoginSerializer(Serializer):
 class PersonSerializer(ModelSerializer):
     class Meta:
         model = Person
-        fields = ('first_name', 'last_name', 'gender_name', 'paternal_name', 'maternal_name', 'yichus_name',
-                  'father_json', 'mother_json', 'wife_json', 'num_of_children')
+        fields = ('pk', 'first_name', 'last_name', 'gender_name', 'paternal_name', 'maternal_name', 'yichus_name',
+                  'father_json', 'mother_json', 'wife_json', 'husband_json', 'num_of_children')
 
     def create(self, validated_data):
         request = self.context['request']
