@@ -35,8 +35,6 @@ class ViewTest(TestCase):
             'password': password,
             'email': self.EMAIL
         }
-        if synagogue is not None:
-            json['synagogue'] = synagogue
         expected_status = status.HTTP_201_CREATED if should_succeed else status.HTTP_401_UNAUTHORIZED
 
         self.get_url('/user', 'post', json, expected_status)
@@ -53,7 +51,7 @@ class ViewTest(TestCase):
         self.get_url('/logout', 'post')
 
     def check_unauthorized(self, url, method, data=None):
-        unauthorized_statuses = [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN]
+        unauthorized_statuses = [status.HTTP_401_UNAUTHORIZED]
         self.get_url(url, method, data, unauthorized_statuses)
 
     def check_perms(self, url, method, data=None, expected_status=status.HTTP_200_OK):
@@ -95,8 +93,9 @@ class TestPerms(ViewTest):
         update synagogue with pk=1.
         we don't test that the update work, it's just a random view to check if a given user has perms to this synagogue
         """
-        self.get_url('/synagogue/1', 'patch', {'name': 'def'},
-                     status.HTTP_200_OK if should_succeed else status.HTTP_403_FORBIDDEN)
+        # if should succeed is False, 400 will return since the person will not be in the queryset
+        expected_status = status.HTTP_200_OK if should_succeed else status.HTTP_401_UNAUTHORIZED
+        self.get_url('/synagogue/1', 'patch', {'name': 'def'}, expected_status)
 
     def test_unauthorized_user(self):
         """
@@ -107,21 +106,14 @@ class TestPerms(ViewTest):
         self.do_update(False)
         self.logout()
 
-    def test_cant_add_synagogue_user(self):
+    def test_two_synagogue_users(self):
         """
-        make sure that unauthorized user can't create a user in a synagogue's admins
-        """
-        self.start_test()
-        self.add_user('john1', 'doe1', synagogue=1, should_succeed=False)
-
-    def test_add_to_admins(self):
-        """
-        make sure that we can add new user to admins and get synagogue
+        make sure that we can add new user to the synagogue
         :return:
         """
         self.start_test()
         self.login()
-        self.add_user('john1', 'doe1', synagogue=1)
+        self.add_user('john1', 'doe1')
         self.logout()  # logout from the first user
         self.login('john1', 'doe1')
         self.do_update(True)
@@ -133,49 +125,54 @@ class TestPersonView(ViewTest):
         self.add_user(login=True)
         self.add_synagogue()
 
-    def add_person(self, synagogue_pk=1, url_pk=1, should_succeed=True, first_name=None, last_name=None):
+    def add_person(self, first_name=None, last_name=None):
         json = {
-            'synagogue': synagogue_pk,
             'first_name': first_name or os.urandom(8),
             'last_name': last_name or os.urandom(8)
         }
-        url = '/synagogue/{}/person'.format(url_pk)
-        if should_succeed:
-            self.get_url(url, 'post', data=json, expected_status=status.HTTP_201_CREATED)
-        else:
-            self.check_unauthorized(url, 'post', data=json)
+
+        self.get_url('/person', 'post', data=json, expected_status=status.HTTP_201_CREATED)
 
     def test_add_person(self):
         self.start_test()
         self.add_person()
 
-    def test_different_pk(self):
-        self.start_test()
-        self.add_synagogue()
-        self.add_person(1, 2, False)
-        self.add_person(2, 1, False)
-
     def test_get_only_your_people(self):
         self.start_test()
-        self.add_synagogue()
-        self.add_person(1, 1, first_name='a')
-        self.add_person(2, 2, first_name='b')
-        response = self.get_url('/synagogue/1/person', method='get')
-        self.check_response_is_person(response, 'a')
-
-    def test_no_perms_for_other_synagogue(self):
-        self.start_test()
-        self.add_person()
+        # add person to first synagogue
+        self.add_person(first_name='a')
         self.logout()
-        self.check_unauthorized('/synagogue/1/person', method='get')
-        self.check_unauthorized('/synagogue/1/person/1', method='get')
 
-    def check_response_is_person(self, response, person_first_name):
-        self.assertEqual(len(response.json()), 1)
-        self.assertEqual(response.json()[0]['first_name'], person_first_name)
+        self.add_user('john1', 'doe1', login=True)
+        self.add_synagogue()
+        self.add_person(first_name='b')
+        self.logout()
+
+        self.login()
+        response = self.get_url('/person', method='get')
+        self.check_response_is_person(response, 'a', is_list=True)
+
+    def test_cant_reach_person(self):
+        self.start_test()
+        self.add_person(first_name='a')
+        self.logout()
+
+        self.add_user('john1', 'doe1', login=True)
+        self.add_synagogue()
+        self.get_url('/person/1', method='get', expected_status=status.HTTP_404_NOT_FOUND)
+
+    def check_response_is_person(self, response, person_first_name, is_list=False):
+        if is_list:
+            self.assertTrue(isinstance(response.json(), list))
+            self.assertEqual(len(response.json()), 1)
+            person = response.json()[0]
+        else:
+            person = response.json()
+        self.assertEqual(person['first_name'], person_first_name)
 
     def test_get_specific_person(self):
         self.start_test()
         self.add_person(first_name='a')
-        response = self.get_url('/synagogue/1/person/1', method='get')
+        self.add_person(first_name='b')
+        response = self.get_url('/person/1', method='get')
         self.check_response_is_person(response, 'a')

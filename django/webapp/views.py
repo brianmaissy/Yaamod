@@ -10,18 +10,16 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from webapp.models import Synagogue, Person
-from webapp.permission import PostSynagoguePermission, AddUserPermissions, MakeAddMemberTokenPermissions, \
-    IsGetOrAuthenticated, GetSynagogueFromKwargsPermissions
-from webapp.serializers import UserSerializer, SynagogueSerializer, LoginSerializer, MakeAddMemberTokenSerializer, \
-    PersonSerializer
-from webapp.filters import GetFromSynagogueFilterBackend
+from webapp.permission import PostSynagoguePermission, IsGetOrAuthenticated
+from webapp.serializers import UserSerializer, SynagogueSerializer, LoginSerializer, PersonSerializer
+from webapp.filters import FilterSynagogueBackend
+from webapp.utils import request_to_synagogue
 
 
 @method_decorator(atomic, name='dispatch')
 class UserCreateAPIView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (AddUserPermissions,)
 
 
 @method_decorator(atomic, name='dispatch')
@@ -41,15 +39,13 @@ class SynagogueDetailView(generics.RetrieveUpdateDestroyAPIView):
 class PersonListCreateView(generics.ListCreateAPIView):
     queryset = Person.objects.all()
     serializer_class = PersonSerializer
-    filter_backends = (GetFromSynagogueFilterBackend,)
-    permission_classes = (GetSynagogueFromKwargsPermissions,)
+    filter_backends = (FilterSynagogueBackend,)
 
 
 class PersonDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Person.objects.all()
     serializer_class = PersonSerializer
-    filter_backends = (GetFromSynagogueFilterBackend,)
-    permission_classes = (GetSynagogueFromKwargsPermissions,)
+    filter_backends = (FilterSynagogueBackend,)
 
 
 class LoginView(APIView):
@@ -63,9 +59,7 @@ class LoginView(APIView):
         else:
             raise PermissionDenied()
 
-        # return the synagogues that this user is admin in
-        synagogues = Synagogue.objects.filter(admins__in=user.groups.all())
-        return Response([{'id': synagogue.id} for synagogue in synagogues])
+        return Response()
 
 
 class LogoutView(APIView):
@@ -75,11 +69,7 @@ class LogoutView(APIView):
 
 
 class MakeAddMemberTokenView(APIView):
-    permission_classes = (MakeAddMemberTokenPermissions,)
-
     def post(self, request):
-        serializer = MakeAddMemberTokenSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        synagogue = serializer.validated_data['synagogue']
+        synagogue = request_to_synagogue(request)
         token, created = Token.objects.get_or_create(user=synagogue.member_creator)
         return Response({'token': token.key})

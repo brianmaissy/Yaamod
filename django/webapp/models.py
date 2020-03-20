@@ -1,7 +1,7 @@
 import math
 from datetime import date
 
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.query import QuerySet
 from django_enumfield import enum
@@ -37,7 +37,6 @@ class CannotGetAliya(Exception):
 
 class Synagogue(models.Model):
     name = models.TextField()
-    admins = models.ForeignKey(Group, on_delete=models.CASCADE)
     member_creator = models.ForeignKey(User, on_delete=models.CASCADE)
     in_israel = models.BooleanField(default=True)
     in_jerusalem = models.BooleanField(default=False)
@@ -278,3 +277,34 @@ class Person(models.Model):
             return AliyaPrecedenceReason.BAR_MITZVAH_PARASHA
         else:
             return None
+
+    @property
+    def gender_name(self) -> str:
+        return Gender.label(self.gender).capitalize()
+
+    def _get_field_as_json(self, field: str) -> Optional[Dict]:
+        value = getattr(self, field)
+        if value is None:
+            return None
+        return {'id': value.pk, 'name': value.full_name}
+
+    @property
+    def father_json(self) -> Optional[Dict]:
+        return self._get_field_as_json('father')
+
+    @property
+    def mother_json(self) -> Optional[Dict]:
+        return self._get_field_as_json('mother')
+
+    @property
+    def wife_json(self) -> Optional[Dict]:
+        return self._get_field_as_json('wife')
+
+    @property
+    def num_of_children(self) -> int:
+        return len(self.children)
+
+
+class UserToSynagogue(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    synagogue = models.ForeignKey(Synagogue, on_delete=models.CASCADE)
